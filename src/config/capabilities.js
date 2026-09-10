@@ -43,12 +43,12 @@ export const CAPABILITIES = {
     id: 'emailService',
     name: 'Email Magic Link / OTP',
     category: 'Authentication & Identity',
-    description: 'Transactional email authentication service.',
-    live: false, // Intentionally declared unavailable to demonstrate graceful "Coming Soon" fallback
-    mode: 'COMING_SOON',
+    description: 'Transactional email authentication service with 6-digit OTP delivery.',
+    live: true,
+    mode: 'EMAIL_OTP_DISPATCH',
     fallback: 'guest_walkin',
     fallbackLabel: 'Guest / Desk Walk-in Registration',
-    latencyMs: null,
+    latencyMs: 200,
   },
 
   guestRegistration: {

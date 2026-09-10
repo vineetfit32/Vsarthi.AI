@@ -125,7 +125,7 @@ export default function InterviewScreen() {
           : 'Excellent! Interview complete. You can now upload your medical documents.',
         time: new Date(),
       });
-      setTimeout(() => actions.setStep('documents'), 2000);
+      setTimeout(() => actions.setStep('documents'), 600);
     } else {
       actions.setQuestionIndex(nextQ);
       // Add assistant message for next question

@@ -15,10 +15,9 @@ import PhysicianScreen from './screens/PhysicianScreen.jsx';
 import SessionEndScreen from './screens/SessionEndScreen.jsx';
 import PrescriptionScannerScreen from './screens/PrescriptionScannerScreen.jsx';
 import RedFlagModal from './components/RedFlagModal.jsx';
-import KioskGuard from './components/KioskGuard.jsx';
 import AskVSarthiChatbot from './components/AskVSarthiChatbot.jsx';
 import SystemStatusModal from './components/SystemStatusModal.jsx';
-import { Stethoscope, Home, Shield, Activity, Monitor } from 'lucide-react';
+import { Stethoscope, Home, Shield, Activity } from 'lucide-react';
 import clsx from 'clsx';
 // DemoModeBar imported normally; rendered only in DEV mode via import.meta.env.DEV
 import DemoModeBar from './components/DemoModeBar.jsx';
@@ -28,7 +27,7 @@ export default function App() {
   const { state, actions } = useApp();
   const {
     activeView, currentStep, highContrast, largeFont,
-    isDemoMode, activePersonaId, isKiosk, interview
+    isDemoMode, activePersonaId, interview
   } = state;
 
   const [showDismissedRedFlag, setShowDismissedRedFlag] = useState(false);
@@ -98,17 +97,6 @@ export default function App() {
         />
       )}
 
-      {/* OPD Kiosk Guard Inactivity Timer */}
-      <KioskGuard
-        isKiosk={isKiosk || activeView === 'kiosk'}
-        timeoutSeconds={60}
-        onReset={() => {
-          actions.reset();
-          actions.setView('kiosk');
-          actions.setStep('language');
-        }}
-      />
-
       {/* Emergency Red-Flag Modal */}
       {interview.redFlag && !showDismissedRedFlag && (
         <RedFlagModal
@@ -118,7 +106,7 @@ export default function App() {
         />
       )}
 
-      {/* Portal Navigation Bar (shown only when not on landing/kiosk) */}
+      {/* Portal Navigation Bar (shown only when not on landing) */}
       {activeView !== 'landing' && activeView !== 'prescription_scanner' && (
         <div className="bg-slate-900 text-white text-xs px-3 py-1.5 shadow-md flex items-center gap-2 overflow-x-auto z-30 flex-shrink-0">
           <button
@@ -156,13 +144,6 @@ export default function App() {
           >
             <Shield size={12} /> Hospital Admin
           </button>
-          <button
-            onClick={() => { actions.setKioskMode(true); actions.setView('kiosk'); actions.setStep('language'); }}
-            className={clsx('px-2.5 py-1 rounded-lg flex items-center gap-1 font-bold transition-all flex-shrink-0',
-              activeView === 'kiosk' ? 'bg-emerald-600 text-white' : 'hover:bg-slate-800 text-slate-300')}
-          >
-            <Monitor size={12} /> OPD Kiosk
-          </button>
         </div>
       )}
 
@@ -196,7 +177,7 @@ export default function App() {
           <AdminDashboardScreen onBackHome={() => actions.setView('landing')} />
         )}
 
-        {(activeView === 'patient' || activeView === 'kiosk') && (
+        {activeView === 'patient' && (
           <div className="flex-1">
             {patientScreens[currentStep] || <LanguageScreen />}
           </div>

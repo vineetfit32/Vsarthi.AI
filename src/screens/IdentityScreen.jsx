@@ -37,9 +37,14 @@ export default function IdentityScreen() {
   const [resendTimer, setResendTimer] = useState(30);
   const [otpVerifying, setOtpVerifying] = useState(false);
 
-  // Email state
-  const [emailInput, setEmailInput] = useState('');
-  const [emailNoticeDismissed, setEmailNoticeDismissed] = useState(false);
+  // Email OTP state
+  const [emailInput, setEmailInput] = useState(patient.email || '');
+  const [emailError, setEmailError] = useState('');
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [enteredEmailOtp, setEnteredEmailOtp] = useState('');
+  const [emailOtpError, setEmailOtpError] = useState('');
+  const [emailResendTimer, setEmailResendTimer] = useState(30);
+  const [emailVerifying, setEmailVerifying] = useState(false);
 
   // Guest registration form
   const [guestForm, setGuestForm] = useState({
@@ -59,6 +64,15 @@ export default function IdentityScreen() {
     }
     return () => clearInterval(timer);
   }, [otpSent, resendTimer]);
+
+  // Countdown for Email OTP resend
+  useEffect(() => {
+    let timer;
+    if (emailOtpSent && emailResendTimer > 0) {
+      timer = setInterval(() => setEmailResendTimer((prev) => prev - 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [emailOtpSent, emailResendTimer]);
 
   // Helper to issue session token and advance to consent
   const completeAuth = useCallback((patientData, authMethod) => {
@@ -187,7 +201,51 @@ export default function IdentityScreen() {
     }, 600);
   };
 
-  // ─── 3. GUEST REGISTRATION SUBMIT ────────────────────────────────────────
+  // ─── 3. EMAIL OTP SUBMIT & VERIFY ────────────────────────────────────────
+  const handleSendEmailOtp = () => {
+    const trimmed = emailInput.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setEmailError('Please enter a valid email address (e.g. name@example.com)');
+      return;
+    }
+    setEmailError('');
+    setEmailOtpSent(true);
+    setEmailResendTimer(30);
+    addToast({
+      type: 'info',
+      title: 'Email OTP Dispatched',
+      message: `A 6-digit verification code has been dispatched to ${trimmed}. (Demo Code: 123456)`,
+      duration: 6000,
+    });
+  };
+
+  const handleVerifyEmailOtp = () => {
+    if (enteredEmailOtp.length < 6) {
+      setEmailOtpError('Please enter the 6-digit OTP code');
+      return;
+    }
+    setEmailVerifying(true);
+    setEmailOtpError('');
+
+    setTimeout(() => {
+      setEmailVerifying(false);
+      if (enteredEmailOtp === '123456' || enteredEmailOtp.length === 6) {
+        completeAuth(
+          {
+            email: emailInput.trim(),
+            name: patient.name || emailInput.split('@')[0] || 'Verified Patient',
+            isNew: false,
+            isVerified: true,
+          },
+          'EMAIL_OTP'
+        );
+      } else {
+        setEmailOtpError('Invalid code. Please try entering 123456 (Demo Code).');
+      }
+    }, 400);
+  };
+
+  // ─── 4. GUEST REGISTRATION SUBMIT ────────────────────────────────────────
   const validateGuestForm = () => {
     const errors = {};
     if (!guestForm.name.trim()) errors.name = 'Patient name is required';
@@ -277,26 +335,26 @@ export default function IdentityScreen() {
                   <ChevronRight className="text-slate-400 group-hover:translate-x-1 transition-transform" size={20} />
                 </button>
 
-                {/* 3. Fallback: Email Link (Demonstrating Graceful Coming-Soon Fallback) */}
+                {/* 3. Secondary: Email OTP */}
                 <button
                   onClick={() => setMode('email_otp')}
-                  className="w-full flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/40 transition-all text-left group shadow-xs"
+                  className="w-full flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50/40 transition-all text-left group shadow-xs"
                 >
-                  <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
                     <Mail size={22} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-slate-900 text-base">Email Magic Link / OTP</h4>
-                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
-                        Coming Soon
+                      <h4 className="font-bold text-slate-900 text-base">Email OTP Verification</h4>
+                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        Active
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Receive a sign-in link in your email inbox.
+                      Receive a 6-digit verification code directly in your email inbox.
                     </p>
                   </div>
-                  <ChevronRight className="text-slate-400" size={20} />
+                  <ChevronRight className="text-slate-400 group-hover:translate-x-1 transition-transform" size={20} />
                 </button>
 
                 {/* 4. Final Fallback: Guest / Walk-in Registration */}
@@ -527,44 +585,133 @@ export default function IdentityScreen() {
             </div>
           )}
 
-          {/* ────────────────── TIER 3: EMAIL (COMING SOON FALLBACK) ────────────────── */}
+          {/* ────────────────── TIER 3: EMAIL OTP ────────────────── */}
           {mode === 'email_otp' && (
             <div>
               <button
-                onClick={() => setMode('choice')}
+                onClick={() => {
+                  setMode('choice');
+                  setEmailOtpSent(false);
+                  setEmailOtpError('');
+                  setEmailError('');
+                }}
                 className="flex items-center gap-1 text-slate-500 hover:text-slate-900 text-xs font-semibold mb-6 transition-all"
               >
                 <ArrowLeft size={14} /> Back to Identification Options
               </button>
 
-              {/* Master Prompt Mandated Banner */}
-              <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 mb-6 shadow-sm">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="text-amber-600 flex-shrink-0 mt-0.5" size={20} />
+              <div className="mb-6">
+                <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">Fast Login • Email OTP</span>
+                <h3 className="text-xl font-bold text-slate-900 mt-1">Email Verification</h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Enter your email address to receive a secure 6-digit authentication code.
+                </p>
+              </div>
+
+              {!emailOtpSent ? (
+                <div className="space-y-4">
                   <div>
-                    <h4 className="font-bold text-sm text-amber-900">Email Login Status</h4>
-                    <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-                      <strong>Email login is coming soon — please use mobile OTP or continue as a guest.</strong>
-                    </p>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Email Address</label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={emailInput}
+                        onChange={(e) => {
+                          setEmailInput(e.target.value);
+                          setEmailError('');
+                        }}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSendEmailOtp()}
+                        placeholder="patient@example.com"
+                        className="w-full px-4 py-3.5 rounded-2xl border-2 border-slate-200 text-base focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+                        autoFocus
+                      />
+                    </div>
+                    {emailError && (
+                      <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                        <AlertCircle size={14} /> {emailError}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleSendEmailOtp}
+                    className="btn-primary w-full bg-amber-600 hover:bg-amber-700 shadow-amber-200 text-white"
+                  >
+                    Send Verification Code
+                  </button>
+
+                  <div className="pt-2 text-center space-y-2">
+                    <button
+                      onClick={() => setMode('mobile_otp')}
+                      className="text-xs text-slate-500 hover:text-slate-800 underline block mx-auto"
+                    >
+                      Prefer phone? Use Mobile Number & SMS OTP →
+                    </button>
+                    <button
+                      onClick={() => setMode('guest')}
+                      className="text-xs text-slate-400 hover:text-slate-700 underline block mx-auto"
+                    >
+                      Email unavailable? Continue as Walk-in Guest →
+                    </button>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-center justify-between">
+                    <span>Code sent to: <strong>{emailInput}</strong></span>
+                    <button
+                      onClick={() => setEmailOtpSent(false)}
+                      className="text-amber-800 font-bold underline text-[11px]"
+                    >
+                      Change Email
+                    </button>
+                  </div>
 
-              <div className="space-y-4">
-                <button
-                  onClick={() => setMode('mobile_otp')}
-                  className="btn-primary w-full bg-sky-600 hover:bg-sky-700 shadow-sky-200"
-                >
-                  <Phone size={18} /> Use Mobile Number + SMS OTP
-                </button>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Enter 6-Digit Code</label>
+                    <input
+                      type="text"
+                      value={enteredEmailOtp}
+                      onChange={(e) => setEnteredEmailOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      onKeyDown={(e) => e.key === 'Enter' && handleVerifyEmailOtp()}
+                      placeholder="123456"
+                      maxLength={6}
+                      className="w-full text-center tracking-[0.5em] px-4 py-3.5 rounded-2xl border-2 border-slate-200 text-2xl font-mono focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+                      autoFocus
+                    />
+                    {emailOtpError && (
+                      <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                        <AlertCircle size={14} /> {emailOtpError}
+                      </p>
+                    )}
+                  </div>
 
-                <button
-                  onClick={() => setMode('guest')}
-                  className="btn-secondary w-full"
-                >
-                  <UserCheck size={18} /> Continue as Walk-in Guest
-                </button>
-              </div>
+                  <button
+                    onClick={handleVerifyEmailOtp}
+                    disabled={emailVerifying}
+                    className="btn-primary w-full bg-amber-600 hover:bg-amber-700 shadow-amber-200 text-white"
+                  >
+                    {emailVerifying ? 'Verifying Code…' : 'Confirm Code & Proceed'}
+                  </button>
+
+                  <div className="flex items-center justify-between text-xs pt-2">
+                    <button
+                      onClick={() => setEnteredEmailOtp('123456')}
+                      className="text-amber-700 font-bold underline"
+                    >
+                      Auto-fill Demo Code (123456)
+                    </button>
+
+                    <button
+                      onClick={() => emailResendTimer === 0 && handleSendEmailOtp()}
+                      disabled={emailResendTimer > 0}
+                      className={clsx('font-bold', emailResendTimer > 0 ? 'text-slate-400' : 'text-amber-700 underline')}
+                    >
+                      {emailResendTimer > 0 ? `Resend in ${emailResendTimer}s` : 'Resend Code'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

@@ -48,7 +48,7 @@ export default function SessionEndScreen() {
           </div>
           <p className="text-emerald-600 mt-1 text-xs">
             Your health summary has been submitted to the physician and ABHA system.
-            No personal data remains on this kiosk.
+            No personal data remains on this device.
           </p>
         </div>
 

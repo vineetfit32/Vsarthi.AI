@@ -279,7 +279,7 @@ export default function DoctorQueueScreen({ onSelectPatient, onLogout, onBackHom
                         )}
                         {item.isKiosk && (
                           <span className="badge-blue text-[10px]">
-                            OPD Kiosk
+                            Digital Intake
                           </span>
                         )}
                       </div>

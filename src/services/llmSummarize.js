@@ -130,8 +130,8 @@ function buildAYUSHText(answers) {
 
 // Main summary generation function
 export async function generateSummary({ patient, answers, documents, questions, language = 'en' }) {
-  // Simulate LLM processing time
-  await new Promise(r => setTimeout(r, 2200));
+  // Rapid processing with zero lag
+  await new Promise(r => setTimeout(r, 50));
 
   const chiefComplaints = (answers.chiefComplaint || []).join(', ').replace(/_/g, ' ');
   const ayushText = buildAYUSHText(answers);

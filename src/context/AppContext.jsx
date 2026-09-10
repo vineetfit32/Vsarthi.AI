@@ -3,10 +3,9 @@ import React, { createContext, useContext, useReducer, useCallback } from 'react
 // ─── Initial state ───────────────────────────────────────────────────────────
 const initialState = {
   // Navigation & View mode
-  activeView: 'landing',     // 'landing' | 'patient' | 'doctor_queue' | 'triage' | 'admin' | 'kiosk'
+  activeView: 'landing',     // 'landing' | 'patient' | 'prescription_scanner' | 'doctor_queue' | 'triage' | 'admin'
   isDemoMode: false,
   activePersonaId: null,
-  isKiosk: false,
   selectedPatientRecord: null,
 
   // UI settings
@@ -221,9 +220,6 @@ function reducer(state, action) {
     case 'TOGGLE_DEMO_MODE':
       return { ...state, isDemoMode: !state.isDemoMode };
 
-    case 'SET_KIOSK_MODE':
-      return { ...state, isKiosk: action.payload };
-
     case 'SET_SELECTED_PATIENT':
       return { ...state, selectedPatientRecord: action.payload };
 
@@ -279,7 +275,7 @@ function reducer(state, action) {
       };
 
     case 'RESET':
-      return { ...initialState, isDemoMode: state.isDemoMode, activeView: state.isKiosk ? 'kiosk' : 'landing' };
+      return { ...initialState, isDemoMode: state.isDemoMode, activeView: 'landing' };
 
     default:
       return state;
@@ -296,7 +292,6 @@ export function AppProvider({ children }) {
   const actions = {
     setView:         (view)    => dispatch({ type: 'SET_VIEW',       payload: view }),
     toggleDemoMode:  ()        => dispatch({ type: 'TOGGLE_DEMO_MODE' }),
-    setKioskMode:    (isKiosk) => dispatch({ type: 'SET_KIOSK_MODE', payload: isKiosk }),
     loadPersona:     (persona) => dispatch({ type: 'LOAD_PERSONA',   payload: persona }),
     setSelectedPatient:(pat)   => dispatch({ type: 'SET_SELECTED_PATIENT', payload: pat }),
     setStep:         (step)    => dispatch({ type: 'SET_STEP',       payload: step }),

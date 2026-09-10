@@ -83,13 +83,13 @@ class AIService {
   // This method handles legacy DocumentScreen OCR flow (mock fallback retained for offline use).
   async extractDocument({ file, onThinkingState }) {
     onThinkingState?.('VSarthi is reading your document…');
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((r) => setTimeout(r, 100));
 
     onThinkingState?.('Extracting prescriptions, diagnosis, and lab values…');
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, 120));
 
     onThinkingState?.('Normalizing clinical measurements against reference standards…');
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((r) => setTimeout(r, 80));
 
     // Use mock document extraction for the legacy DocumentScreen flow
     // The new PrescriptionScannerScreen uses real AI via apiClient.scanPrescription()
@@ -146,13 +146,13 @@ class AIService {
   // ─── 4. CLINICAL SUMMARY GENERATOR (SOAP FORMAT) ─────────────────────────
   async generateSummary({ patient, answers, documents, ayushMode, onThinkingState }) {
     onThinkingState?.('Synthesizing conversational history answers…');
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 60));
 
     onThinkingState?.('Harmonizing prior digitized documents and lab results…');
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((r) => setTimeout(r, 60));
 
     onThinkingState?.('Compiling physician-ready structured clinical note (SOAP)…');
-    await new Promise((r) => setTimeout(r, 700));
+    await new Promise((r) => setTimeout(r, 60));
 
     const summaryData = await generateSummary({
       patient,

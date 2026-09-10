@@ -3,11 +3,12 @@
     {
       "id": "usr_doc_1",
       "email": "dr.sharma@hospital.org",
-      "passwordHash": "f348d5628621f3d8f59c8cabda0f8eb0aa7e0514a90be7571020b1336f26c113",
+      "passwordHash": "$2b$12$ortHMzy78MmaKLOrIJp0ReHOaYZnLyAJpw8MwWbOvuSeCMF7QAU3G",
       "name": "Dr. Ananya Sharma, MD",
       "role": "doctor",
       "department": "Cardiology / General Medicine",
-      "createdAt": "2026-01-10T08:00:00.000Z"
+      "createdAt": "2026-01-10T08:00:00.000Z",
+      "updatedAt": "2026-09-10T17:30:54.883Z"
     },
     {
       "id": "usr_doc_2",
@@ -243,6 +244,18 @@
       "hisExported": true,
       "hisToken": "ABDM-TXN-1789026354628-DB3ABF3F",
       "hisTimestamp": "2026-09-10T07:45:54.629Z"
+    },
+    {
+      "id": "rec_1789061455443_52b29086",
+      "createdAt": "2026-09-10T17:30:55.444Z",
+      "token": "A-109",
+      "status": "in_progress",
+      "priority": "routine",
+      "language": "hi",
+      "ayushMode": false,
+      "isKiosk": true,
+      "redFlag": null,
+      "startedAt": "2026-09-10T17:30:55.443Z"
     }
   ],
   "clinical_histories": [
@@ -1187,6 +1200,35 @@
       "details": {
         "priority": "critical"
       }
+    },
+    {
+      "id": "rec_1789061454885_3a7e74d8",
+      "createdAt": "2026-09-10T17:30:54.885Z",
+      "actorRole": "doctor",
+      "actorId": "usr_doc_1",
+      "action": "USER_LOGIN",
+      "targetType": "user",
+      "targetId": "usr_doc_1",
+      "timestamp": "2026-09-10T17:30:54.885Z",
+      "details": {
+        "email": "dr.sharma@hospital.org",
+        "ipHash": "eff8e7ca"
+      }
+    },
+    {
+      "id": "rec_1789061455444_4fe2b398",
+      "createdAt": "2026-09-10T17:30:55.444Z",
+      "actorRole": "patient",
+      "actorId": "rec_1789061455443_52b29086",
+      "action": "SESSION_INITIALIZED",
+      "targetType": "session",
+      "targetId": "rec_1789061455443_52b29086",
+      "timestamp": "2026-09-10T17:30:55.444Z",
+      "details": {
+        "token": "A-109",
+        "language": "hi",
+        "isKiosk": true
+      }
     }
   ],
   "notifications": [
@@ -1244,5 +1286,7 @@
     "ocrProvider": "hybrid_tesseract_vision",
     "kioskInactivitySeconds": 60,
     "aiModel": "Gemini-3.8-Flash-Clinical"
-  }
+  },
+  "prescriptions": [],
+  "chat_sessions": []
 }

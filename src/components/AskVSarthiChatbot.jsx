@@ -122,19 +122,39 @@ export default function AskVSarthiChatbot() {
       setIsTyping(false);
       setIsSending(false);
 
-      const isNetwork = err.isNetwork || err.isTimeout;
-      const errorText = isNetwork
-        ? 'Unable to connect to the assistant. Please check your internet connection and try again.'
-        : err.message || 'Something went wrong. Please try again.';
+      // Local clinical intake fallback when server is unreachable
+      const lower = text.toLowerCase();
+      let fallbackReply = '';
+      let isEmergency = false;
+
+      if (/chest pain|heart attack|stroke|difficulty breathing|unconscious|severe bleeding/i.test(lower)) {
+        fallbackReply = '🚨 EMERGENCY ALERT: Your symptoms may indicate an urgent medical situation. Please notify OPD nursing staff or call 112 immediately. Do not delay.';
+        isEmergency = true;
+      } else if (/fever|temp|bukhar/i.test(lower)) {
+        fallbackReply = '🌡️ Fever Guidance:\n• Stay well hydrated with fluids or ORS.\n• Rest in a well-ventilated room.\n• If temperature is above 101°F or lasts more than 48 hours, please consult our OPD General Physician today.';
+      } else if (/cough|cold|throat|khansi/i.test(lower)) {
+        fallbackReply = '🩺 Cough & Cold Advice:\n• Drink warm water and try warm saline gargles.\n• Steam inhalation can relieve nasal congestion.\n• If cough persists over 10 days, visit our General Medicine OPD.';
+      } else if (/headache|migraine|sar dard/i.test(lower)) {
+        fallbackReply = '💆 Headache Care:\n• Rest in a quiet, dark room and drink plenty of water.\n• If this is a sudden, unusually severe headache or accompanied by stiff neck, visit the Emergency Desk immediately.';
+      } else if (/stomach|pet|acidity|gas|vomit|diarrhea/i.test(lower)) {
+        fallbackReply = '🍵 Stomach Care:\n• Sip ORS solution frequently.\n• Eat bland food (khichdi, curd).\n• Consult a physician if you experience sharp abdominal pain or persistent vomiting.';
+      } else if (/bp|blood pressure|hypertension/i.test(lower)) {
+        fallbackReply = '❤️ Blood Pressure Guidance:\n• Maintain low dietary sodium.\n• Record daily readings.\n• Consult our General Physician or Cardiologist for dose adjustments.';
+      } else if (/doctor|specialist|appointment/i.test(lower)) {
+        fallbackReply = '👨‍⚕️ Specialist Selection Guide:\n• Heart / BP → Cardiologist\n• Bone / Joint pain → Orthopedist\n• Skin rash → Dermatologist\n• Diabetes / Thyroid → Endocrinologist\n• General fever / Body ache → General Physician';
+      } else {
+        fallbackReply = 'Hello! I am VSarthi, your digital clinical companion. I can help explain medical terms, guide you to the right OPD specialist, and help you prepare questions for your doctor.';
+      }
+
+      if (isEmergency || isStaffAlert) {
+        setStaffAlerted(true);
+      }
 
       addMessage({
         role: 'assistant',
-        text: errorText,
-        isError: true,
-        retryText: text,
+        text: fallbackReply,
+        isEmergency,
       });
-
-      setLastFailedMessage(text);
     }
   }, [inputText, isSending, addMessage, getConversationHistory, session]);
 
