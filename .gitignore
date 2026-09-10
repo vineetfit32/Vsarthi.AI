@@ -34,8 +34,17 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+server/.env
+server/.env.*
 !*.example
 !.env.example
+
+# Server database (auto-generated, contains patient data)
+server/data/vsarthi_db.json
+
+# Uploaded files (privacy — DPDPA 2023)
+server/data/uploads/
+
 
 # Testing coverage
 coverage/

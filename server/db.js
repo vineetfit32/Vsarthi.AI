@@ -1,9 +1,11 @@
 // server/db.js
 // Persistent embedded JSON database for VSarthi.AI
+// Uses bcryptjs for password hashing (NOT SHA-256)
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcryptjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +17,24 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-// Initial seed data
+// ─── Password Hashing (bcrypt) ────────────────────────────────────────────────
+const BCRYPT_ROUNDS = 12;
+
+export function hashPassword(plain) {
+  return bcrypt.hashSync(plain, BCRYPT_ROUNDS);
+}
+
+export function verifyPassword(plain, hash) {
+  // Support legacy SHA-256 hashes during migration
+  if (hash && hash.length === 64 && /^[a-f0-9]+$/.test(hash)) {
+    // Old SHA-256 hash — compare and note that it should be re-hashed on next login
+    const sha256Hash = crypto.createHash('sha256').update(plain).digest('hex');
+    return sha256Hash === hash;
+  }
+  return bcrypt.compareSync(plain, hash);
+}
+
+// ─── Initial seed data ─────────────────────────────────────────────────────────
 function getInitialData() {
   return {
     users: [
@@ -26,7 +45,9 @@ function getInitialData() {
         name: 'Dr. Ananya Sharma, MD',
         role: 'doctor',
         department: 'Cardiology / General Medicine',
+        phone: '9800000001',
         createdAt: '2026-01-10T08:00:00.000Z',
+        isActive: true,
       },
       {
         id: 'usr_doc_2',
@@ -35,7 +56,9 @@ function getInitialData() {
         name: 'Dr. Vikram Patel, MS',
         role: 'doctor',
         department: 'General Surgery / Emergency',
+        phone: '9800000002',
         createdAt: '2026-01-15T08:00:00.000Z',
+        isActive: true,
       },
       {
         id: 'usr_nurse_1',
@@ -44,7 +67,9 @@ function getInitialData() {
         name: 'Sister Priya Singh, RN',
         role: 'nurse',
         department: 'OPD Triage',
+        phone: '9800000003',
         createdAt: '2026-02-01T08:00:00.000Z',
+        isActive: true,
       },
       {
         id: 'usr_admin_1',
@@ -53,7 +78,9 @@ function getInitialData() {
         name: 'OPD Administrator',
         role: 'admin',
         department: 'Hospital Administration',
+        phone: '9800000004',
         createdAt: '2026-01-01T08:00:00.000Z',
+        isActive: true,
       },
     ],
     patients: [
@@ -217,32 +244,6 @@ function getInitialData() {
           exercise: 'sedentary',
         },
       },
-      {
-        id: 'ch_103',
-        sessionId: 'sess_103',
-        answers: {
-          chiefComplaint: ['joint_pain'],
-          duration: 'years',
-          site: 'all_over',
-          severity: 6,
-          pastMedical: ['osteoarthritis'],
-          currentMeds: 'yes',
-          currentMedsDetail: 'Ayurvedic Shallaki tablets, Paracetamol SOS',
-          prakriti: 'vata_pitta',
-          vikriti: 'vata_vriddhi',
-          sara: 'madhyama',
-          samhanana: 'madhyama',
-          pramana: 'sama',
-          satmya: 'sarva_rasa',
-          sattva: 'madhyama',
-          aharaShakti: 'manda_agni',
-          vyayamaShakti: 'alpa',
-          vaya: 'vriddha',
-          aharaVihara: 'Irregular meal timings, disturbed sleep due to joint stiffness',
-          nidana: 'Cold weather exposure, excessive dry food',
-          samprapti: 'Vata dosha aggravated in Sandhi (joints)',
-        },
-      },
     ],
     documents: [
       {
@@ -307,62 +308,18 @@ function getInitialData() {
           timelineSummary: '2024: Diagnosed with Essential HTN -> 2026: Acute onset angina pectoris.',
           redFlags: '🚨 CRITICAL RED FLAG: Possible Acute Coronary Syndrome. Immediate ECG and cardiac enzyme evaluation mandated.',
           missingInfo: 'Recent lipid profile, baseline ECG, renal function tests.',
-          aiConfidenceNotes: 'Source traceability: Patient direct voice interview (85%), uploaded prescription OCR (15%). Draft AI summary — Physician review required.',
+          aiConfidenceNotes: 'AI-generated clinical intake summary — Physician review and verification required before clinical decision making.',
         },
         sectionStatus: {
-          patientInfo: 'accepted',
-          chiefComplaint: 'accepted',
-          hpi: 'accepted',
-          pastMedical: 'accepted',
-          pastSurgical: 'accepted',
-          medications: 'accepted',
-          allergies: 'accepted',
-          familyHistory: 'accepted',
-          personalHistory: 'accepted',
-          reviewOfSystems: 'accepted',
-          priorInvestigations: 'accepted',
-          importantAbnormals: 'accepted',
-          timelineSummary: 'accepted',
-          redFlags: 'accepted',
-          missingInfo: 'accepted',
-          aiConfidenceNotes: 'accepted',
+          patientInfo: 'accepted', chiefComplaint: 'accepted', hpi: 'accepted',
+          pastMedical: 'accepted', pastSurgical: 'accepted', medications: 'accepted',
+          allergies: 'accepted', familyHistory: 'accepted', personalHistory: 'accepted',
+          reviewOfSystems: 'accepted', priorInvestigations: 'accepted',
+          importantAbnormals: 'accepted', timelineSummary: 'accepted',
+          redFlags: 'accepted', missingInfo: 'accepted', aiConfidenceNotes: 'accepted',
         },
         physicianNotes: {},
         updatedAt: '2026-09-10T08:25:00.000Z',
-      },
-      {
-        id: 'sum_102',
-        sessionId: 'sess_102',
-        status: 'pending_physician_review',
-        confidenceScore: 0.91,
-        sections: {
-          patientInfo: 'Meera Verma, 42/F, ABHA: 98-7654-3210-9876, Token: A-102',
-          chiefComplaint: 'Type 2 Diabetes follow-up with worsening daytime fatigue for 1–3 months.',
-          hpi: 'Known diabetic presenting for routine follow-up. Reports generalized lethargy, polydipsia, and nocturia 2–3 times per night.',
-          pastMedical: 'Type 2 Diabetes Mellitus (diagnosed 2021), Hypertension (diagnosed 2022).',
-          pastSurgical: 'No surgical interventions.',
-          medications: 'Metformin 500 mg BD, Telmisartan 40 mg OD.',
-          allergies: '⚠️ ALLERGY FLAG: Penicillin allergy reported (skin rash & urticaria). Cephalosporin caution advised.',
-          familyHistory: 'Mother had T2DM and diabetic retinopathy.',
-          personalHistory: 'Sedentary desk worker. Non-smoker, non-alcoholic.',
-          reviewOfSystems: 'Endocrine: Polydipsia, nocturia. Hematology: Easy fatigability.',
-          priorInvestigations: 'Lab report (22/10/2024): HbA1c 8.4% (Elevated), Fasting Blood Sugar 168 mg/dL (Elevated), Hemoglobin 10.2 g/dL (Mild microcytic anemia).',
-          importantAbnormals: 'Elevated HbA1c 8.4%, FBS 168 mg/dL, Hb 10.2 g/dL.',
-          timelineSummary: '2021: T2DM diagnosed -> 2022: HTN diagnosed -> Oct 2024: HbA1c 8.4% -> Sep 2026: Intake consultation.',
-          redFlags: 'None detected.',
-          missingInfo: 'Urine microalbumin/creatinine ratio, fundus examination record.',
-          aiConfidenceNotes: 'Extracted from patient interview + SRL lab report OCR. AI-generated draft — Physician review required.',
-        },
-        sectionStatus: {
-          chiefComplaint: 'pending',
-          hpi: 'pending',
-          medications: 'pending',
-          allergies: 'pending',
-          priorInvestigations: 'pending',
-          importantAbnormals: 'pending',
-        },
-        physicianNotes: {},
-        updatedAt: '2026-09-10T08:43:00.000Z',
       },
     ],
     consents: [
@@ -374,18 +331,7 @@ function getInitialData() {
         dataSharing: true,
         acceptedAt: '2026-09-10T08:15:30.000Z',
         policyVersion: 'DPDPA-2023-V2.1',
-        ipAddress: '192.168.1.101',
-        revoked: false,
-      },
-      {
-        id: 'cns_102',
-        sessionId: 'sess_102',
-        patientId: 'pat_102',
-        dataCapture: true,
-        dataSharing: true,
-        acceptedAt: '2026-09-10T08:30:45.000Z',
-        policyVersion: 'DPDPA-2023-V2.1',
-        ipAddress: '192.168.1.105',
+        ipAddress: '127.0.0.1',
         revoked: false,
       },
     ],
@@ -400,73 +346,22 @@ function getInitialData() {
         timestamp: '2026-09-10T08:15:30.000Z',
         details: { policyVersion: 'DPDPA-2023-V2.1', scope: 'capture_and_share' },
       },
-      {
-        id: 'aud_2',
-        actorRole: 'system',
-        actorId: 'redflag_engine',
-        action: 'RED_FLAG_TRIGGERED',
-        targetType: 'session',
-        targetId: 'sess_101',
-        timestamp: '2026-09-10T08:22:00.000Z',
-        details: { ruleId: 'acs', severity: 'critical', symptom: 'chest_pain + radiation + sob' },
-      },
-      {
-        id: 'aud_3',
-        actorRole: 'system',
-        actorId: 'ocr_pipeline',
-        action: 'DOCUMENT_OCR_PROCESSED',
-        targetType: 'document',
-        targetId: 'doc_101_1',
-        timestamp: '2026-09-10T08:23:15.000Z',
-        details: { filename: 'Apollo_Prescription_Cardio.jpg', entitiesFound: 4 },
-      },
-      {
-        id: 'aud_4',
-        actorRole: 'system',
-        actorId: 'ai_summarizer',
-        action: 'SUMMARY_GENERATED',
-        targetType: 'ai_summary',
-        targetId: 'sum_101',
-        timestamp: '2026-09-10T08:24:00.000Z',
-        details: { sectionsCount: 16, confidenceScore: 0.94 },
-      },
     ],
-    notifications: [
-      {
-        id: 'notif_1',
-        type: 'red_flag',
-        priority: 'high',
-        targetRole: 'doctor',
-        message: '🚨 Token A-101 (Ramesh Gupta, 58/M): Possible Acute Coronary Syndrome detected.',
-        timestamp: '2026-09-10T08:22:00.000Z',
-        isRead: false,
-        sessionId: 'sess_101',
-      },
-    ],
+    notifications: [],
+    prescriptions: [],
+    chat_sessions: [],
     system_config: {
-      hospitalName: 'AIIMS New Delhi - Smart OPD Intake',
+      hospitalName: 'VSarthi.AI OPD Platform',
       retentionDays: 90,
       emergencyNumber: '112',
       ambulanceNumber: '108',
       abdmEnvironment: 'sandbox',
-      abdmClientId: 'ABDM-SBX-VSARTHI-9921',
-      ocrProvider: 'hybrid_tesseract_vision',
       kioskInactivitySeconds: 60,
-      aiModel: 'Gemini-3.8-Flash-Clinical',
     },
   };
 }
 
-// Password hashing
-export function hashPassword(plain) {
-  return crypto.createHash('sha256').update(plain).digest('hex');
-}
-
-export function verifyPassword(plain, hash) {
-  return hashPassword(plain) === hash;
-}
-
-// Database Engine class
+// ─── Database Engine ──────────────────────────────────────────────────────────
 class Database {
   constructor() {
     this.data = null;
@@ -478,6 +373,9 @@ class Database {
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         this.data = JSON.parse(raw);
+        // Ensure new collections exist (migration)
+        if (!this.data.prescriptions) this.data.prescriptions = [];
+        if (!this.data.chat_sessions) this.data.chat_sessions = [];
       } else {
         this.data = getInitialData();
         this.save();
@@ -497,7 +395,6 @@ class Database {
     }
   }
 
-  // Collection access
   collection(name) {
     if (!this.data[name]) {
       this.data[name] = [];
@@ -522,7 +419,7 @@ class Database {
       },
       insert(record) {
         const item = {
-          id: record.id || `rec_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+          id: record.id || `rec_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`,
           createdAt: new Date().toISOString(),
           ...record,
         };
@@ -557,10 +454,8 @@ class Database {
     };
   }
 
-  // Audit logging helper
   logAudit({ actorRole, actorId, action, targetType, targetId, details = {} }) {
     return this.collection('audit_logs').insert({
-      id: `aud_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       actorRole,
       actorId,
       action,
@@ -571,7 +466,6 @@ class Database {
     });
   }
 
-  // Reset database to initial state
   reset() {
     this.data = getInitialData();
     this.save();

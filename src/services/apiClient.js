@@ -1,21 +1,45 @@
 // src/services/apiClient.js
-// Dual-mode API Client: connects to Express backend (http://localhost:5000)
-// or gracefully falls back to local client state if server is offline
-const API_BASE = import.meta.env.VITE_API_URL || 
-  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+// VSarthi.AI API Client — connects to Express backend
+// All sensitive operations go through the backend; no API keys in frontend
+
+const API_BASE = import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined' &&
+   window.location.hostname !== 'localhost' &&
+   window.location.hostname !== '127.0.0.1'
     ? '/api'
     : 'http://localhost:5000/api');
 
 class ApiClient {
   constructor() {
     this.token = localStorage.getItem('vsarthi_token') || null;
-    this.serverAvailable = null; // null: unknown, true, false
+    this.serverAvailable = null;
   }
 
   setToken(token) {
     this.token = token;
-    if (token) localStorage.setItem('vsarthi_token', token);
-    else localStorage.removeItem('vsarthi_token');
+    if (token) {
+      localStorage.setItem('vsarthi_token', token);
+    } else {
+      localStorage.removeItem('vsarthi_token');
+      localStorage.removeItem('vsarthi_user');
+    }
+  }
+
+  setUser(user) {
+    if (user) {
+      localStorage.setItem('vsarthi_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('vsarthi_user');
+    }
+  }
+
+  getStoredUser() {
+    try {
+      const raw = localStorage.getItem('vsarthi_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
   }
 
   getHeaders() {
@@ -28,7 +52,10 @@ class ApiClient {
 
   async checkServer() {
     try {
-      const res = await fetch(`${API_BASE}/health`, { method: 'GET', signal: AbortSignal.timeout(1500) });
+      const res = await fetch(`${API_BASE}/health`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(3000),
+      });
       this.serverAvailable = res.ok;
       return this.serverAvailable;
     } catch {
@@ -37,38 +64,125 @@ class ApiClient {
     }
   }
 
-  async request(endpoint, options = {}) {
+  async request(endpoint, options = {}, timeoutMs = 30000) {
+    const url = `${API_BASE}${endpoint}`;
     try {
-      const url = `${API_BASE}${endpoint}`;
       const res = await fetch(url, {
         ...options,
         headers: { ...this.getHeaders(), ...(options.headers || {}) },
-        signal: AbortSignal.timeout(6000),
+        signal: AbortSignal.timeout(timeoutMs),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+      let data;
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        data = { message: await res.text() };
+      }
+
+      if (!res.ok) {
+        const err = new Error(data.error || data.message || `HTTP ${res.status}`);
+        err.status = res.status;
+        err.fields = data.fields || null;
+        throw err;
+      }
+
       this.serverAvailable = true;
       return data;
     } catch (err) {
-      // If network failure, mark server as unavailable
-      if (err.name === 'AbortError' || err.message.includes('fetch')) {
+      if (err.name === 'TimeoutError' || err.name === 'AbortError') {
         this.serverAvailable = false;
+        const timeoutErr = new Error('Request timed out. Please check your connection and try again.');
+        timeoutErr.isTimeout = true;
+        throw timeoutErr;
+      }
+      if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
+        this.serverAvailable = false;
+        const networkErr = new Error('Cannot connect to server. Please ensure the backend is running.');
+        networkErr.isNetwork = true;
+        throw networkErr;
       }
       throw err;
     }
   }
 
-  // Auth
+  // ─── Auth ─────────────────────────────────────────────────────────────────
   async login(email, password) {
     const res = await this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    if (res.token) this.setToken(res.token);
+    if (res.token) {
+      this.setToken(res.token);
+      this.setUser(res.user);
+    }
     return res;
   }
 
-  // Patient
+  async register(payload) {
+    const res = await this.request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    if (res.token) {
+      this.setToken(res.token);
+      this.setUser(res.user);
+    }
+    return res;
+  }
+
+  async getMe() {
+    return this.request('/auth/me');
+  }
+
+  async forgotPassword(email) {
+    return this.request('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  logout() {
+    this.setToken(null);
+    this.setUser(null);
+    this.serverAvailable = null;
+  }
+
+  // ─── AI Chat ──────────────────────────────────────────────────────────────
+  async sendChatMessage(message, conversationHistory = [], sessionId = null) {
+    return this.request('/chat/message', {
+      method: 'POST',
+      body: JSON.stringify({ message, conversationHistory, sessionId }),
+    }, 60000); // 60s timeout for AI responses
+  }
+
+  async getChatStatus() {
+    return this.request('/chat/status');
+  }
+
+  // ─── Prescription Scanner ─────────────────────────────────────────────────
+  async scanPrescription(imageBase64, mimeType = 'image/jpeg', filename = 'prescription', sessionId = null) {
+    return this.request('/prescription/scan', {
+      method: 'POST',
+      body: JSON.stringify({ imageBase64, mimeType, filename, sessionId }),
+    }, 120000); // 2 min timeout for vision processing
+  }
+
+  async confirmPrescription(prescriptionId, confirmedData, userNotes = '') {
+    return this.request(`/prescription/${prescriptionId}/confirm`, {
+      method: 'PUT',
+      body: JSON.stringify({ confirmedData, userNotes }),
+    });
+  }
+
+  async deletePrescription(prescriptionId) {
+    return this.request(`/prescription/${prescriptionId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // ─── Patient ──────────────────────────────────────────────────────────────
   async createSession(payload) {
     return this.request('/patient/session', {
       method: 'POST',
@@ -98,7 +212,7 @@ class ApiClient {
     return this.request(`/patient/timeline/${sessionId}`);
   }
 
-  // Interview
+  // ─── Interview ────────────────────────────────────────────────────────────
   async recordAnswer(payload) {
     return this.request('/history/answer', {
       method: 'POST',
@@ -106,7 +220,7 @@ class ApiClient {
     });
   }
 
-  // Documents
+  // ─── Documents (OCR) ─────────────────────────────────────────────────────
   async processOcr(payload) {
     return this.request('/documents/ocr', {
       method: 'POST',
@@ -114,7 +228,7 @@ class ApiClient {
     });
   }
 
-  // Summary
+  // ─── Summary ──────────────────────────────────────────────────────────────
   async generateSummary(sessionId) {
     return this.request('/summary/generate', {
       method: 'POST',
@@ -129,7 +243,7 @@ class ApiClient {
     });
   }
 
-  // Doctor & Queue
+  // ─── Doctor & Queue ───────────────────────────────────────────────────────
   async getDoctorQueue(params = {}) {
     const query = new URLSearchParams(params).toString();
     return this.request(`/doctor/queue${query ? `?${query}` : ''}`);
@@ -146,7 +260,7 @@ class ApiClient {
     });
   }
 
-  // Admin
+  // ─── Admin ────────────────────────────────────────────────────────────────
   async getAdminMetrics() {
     return this.request('/admin/metrics');
   }
@@ -160,7 +274,7 @@ class ApiClient {
     return this.request('/admin/users');
   }
 
-  // HIS / FHIR Export
+  // ─── HIS / FHIR Export ───────────────────────────────────────────────────
   async exportToHis(sessionId) {
     return this.request('/his/export', {
       method: 'POST',
