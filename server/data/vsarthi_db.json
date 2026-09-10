@@ -1,0 +1,983 @@
+{
+  "users": [
+    {
+      "id": "usr_doc_1",
+      "email": "dr.sharma@hospital.org",
+      "passwordHash": "f348d5628621f3d8f59c8cabda0f8eb0aa7e0514a90be7571020b1336f26c113",
+      "name": "Dr. Ananya Sharma, MD",
+      "role": "doctor",
+      "department": "Cardiology / General Medicine",
+      "createdAt": "2026-01-10T08:00:00.000Z"
+    },
+    {
+      "id": "usr_doc_2",
+      "email": "dr.patel@hospital.org",
+      "passwordHash": "f348d5628621f3d8f59c8cabda0f8eb0aa7e0514a90be7571020b1336f26c113",
+      "name": "Dr. Vikram Patel, MS",
+      "role": "doctor",
+      "department": "General Surgery / Emergency",
+      "createdAt": "2026-01-15T08:00:00.000Z"
+    },
+    {
+      "id": "usr_nurse_1",
+      "email": "nurse@hospital.org",
+      "passwordHash": "35608f3146571aa100227a3e68290979ba8a452179a080f888625106076e7de2",
+      "name": "Sister Priya Singh, RN",
+      "role": "nurse",
+      "department": "OPD Triage",
+      "createdAt": "2026-02-01T08:00:00.000Z"
+    },
+    {
+      "id": "usr_admin_1",
+      "email": "admin@hospital.org",
+      "passwordHash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+      "name": "OPD Administrator",
+      "role": "admin",
+      "department": "Hospital Administration",
+      "createdAt": "2026-01-01T08:00:00.000Z"
+    }
+  ],
+  "patients": [
+    {
+      "id": "pat_101",
+      "token": "A-101",
+      "abhaId": "12345678901234",
+      "name": "Ramesh Gupta",
+      "dob": "1968-04-12",
+      "age": 58,
+      "gender": "male",
+      "phone": "9876543210",
+      "createdAt": "2026-09-10T08:15:00.000Z"
+    },
+    {
+      "id": "pat_102",
+      "token": "A-102",
+      "abhaId": "98765432109876",
+      "name": "Meera Verma",
+      "dob": "1984-11-25",
+      "age": 42,
+      "gender": "female",
+      "phone": "8765432109",
+      "createdAt": "2026-09-10T08:30:00.000Z"
+    },
+    {
+      "id": "pat_103",
+      "token": "A-103",
+      "abhaId": "11223344556677",
+      "name": "Suresh Joshi",
+      "dob": "1962-08-19",
+      "age": 64,
+      "gender": "male",
+      "phone": "7654321098",
+      "createdAt": "2026-09-10T08:45:00.000Z"
+    },
+    {
+      "id": "pat_104",
+      "token": "A-104",
+      "abhaId": "",
+      "name": "Aarav Sharma",
+      "dob": "2019-02-14",
+      "age": 7,
+      "gender": "male",
+      "phone": "9988776655",
+      "createdAt": "2026-09-10T09:00:00.000Z"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "sess_101",
+      "token": "A-101",
+      "patientId": "pat_101",
+      "status": "urgent_review",
+      "priority": "critical",
+      "language": "hi",
+      "ayushMode": false,
+      "isKiosk": true,
+      "redFlag": {
+        "id": "acs",
+        "name": "Possible Acute Coronary Syndrome",
+        "severity": "critical",
+        "message": "सीने में दर्द के साथ बाएं हाथ में दर्द और पसीना — तत्काल हृदय जांच आवश्यक।",
+        "detectedAt": "2026-09-10T08:22:00.000Z"
+      },
+      "chiefComplaint": [
+        "chest_pain"
+      ],
+      "chiefComplaintDisplay": "सीने में दर्द (Chest Pain)",
+      "duration": "2_3_days",
+      "startedAt": "2026-09-10T08:16:00.000Z",
+      "completedAt": "2026-09-10T08:24:00.000Z"
+    },
+    {
+      "id": "sess_102",
+      "token": "A-102",
+      "patientId": "pat_102",
+      "status": "summary_ready",
+      "priority": "urgent",
+      "language": "en",
+      "ayushMode": false,
+      "isKiosk": false,
+      "redFlag": null,
+      "chiefComplaint": [
+        "diabetes_fu",
+        "fatigue"
+      ],
+      "chiefComplaintDisplay": "Diabetes Follow-up & Fatigue",
+      "duration": "1_3_months",
+      "startedAt": "2026-09-10T08:31:00.000Z",
+      "completedAt": "2026-09-10T08:42:00.000Z",
+      "updatedAt": "2026-09-10T06:43:11.200Z"
+    },
+    {
+      "id": "sess_103",
+      "token": "A-103",
+      "patientId": "pat_103",
+      "status": "summary_ready",
+      "priority": "routine",
+      "language": "hi",
+      "ayushMode": true,
+      "isKiosk": true,
+      "redFlag": null,
+      "chiefComplaint": [
+        "joint_pain"
+      ],
+      "chiefComplaintDisplay": "जोड़ों में दर्द (संधिशूल - Vata Vyadhi)",
+      "duration": "over_3mo",
+      "startedAt": "2026-09-10T08:46:00.000Z",
+      "completedAt": "2026-09-10T08:58:00.000Z"
+    },
+    {
+      "id": "sess_104",
+      "token": "A-104",
+      "patientId": "pat_104",
+      "status": "summary_ready",
+      "priority": "urgent",
+      "language": "en",
+      "ayushMode": false,
+      "isKiosk": false,
+      "redFlag": null,
+      "chiefComplaint": [
+        "fever",
+        "cough"
+      ],
+      "chiefComplaintDisplay": "High Fever & Cough (3 days)",
+      "duration": "2_3_days",
+      "startedAt": "2026-09-10T09:01:00.000Z",
+      "completedAt": "2026-09-10T09:12:00.000Z"
+    },
+    {
+      "id": "rec_1789020685318_1b0f1",
+      "createdAt": "2026-09-10T06:11:25.318Z",
+      "token": "A-105",
+      "status": "in_progress",
+      "priority": "routine",
+      "language": "hi",
+      "ayushMode": false,
+      "isKiosk": true,
+      "redFlag": null,
+      "startedAt": "2026-09-10T06:11:25.318Z"
+    },
+    {
+      "id": "rec_1789020725582_9hf0q",
+      "createdAt": "2026-09-10T06:12:05.582Z",
+      "token": "A-106",
+      "status": "urgent_review",
+      "priority": "critical",
+      "language": "hi",
+      "ayushMode": false,
+      "isKiosk": true,
+      "redFlag": {
+        "id": "acs",
+        "name": "Possible Acute Coronary Syndrome",
+        "severity": "critical",
+        "message": "Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "actionRequired": "Alert Triage & Prepare ECG"
+      },
+      "startedAt": "2026-09-10T06:12:05.582Z",
+      "updatedAt": "2026-09-10T06:12:06.564Z",
+      "hisExported": true,
+      "hisToken": "ABDM-TXN-1789020726563-D1E467ED",
+      "hisTimestamp": "2026-09-10T06:12:06.564Z"
+    },
+    {
+      "id": "rec_1789021001107_vhiwp",
+      "createdAt": "2026-09-10T06:16:41.107Z",
+      "token": "A-107",
+      "status": "urgent_review",
+      "priority": "urgent",
+      "language": "hi",
+      "ayushMode": false,
+      "isKiosk": true,
+      "redFlag": {
+        "id": "acs",
+        "name": "Possible Acute Coronary Syndrome",
+        "severity": "critical",
+        "message": "Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "actionRequired": "Alert Triage & Prepare ECG"
+      },
+      "startedAt": "2026-09-10T06:16:41.107Z",
+      "updatedAt": "2026-09-10T06:43:06.885Z",
+      "hisExported": true,
+      "hisToken": "ABDM-TXN-1789021002078-3A136A12",
+      "hisTimestamp": "2026-09-10T06:16:42.079Z"
+    }
+  ],
+  "clinical_histories": [
+    {
+      "id": "ch_101",
+      "sessionId": "sess_101",
+      "answers": {
+        "chiefComplaint": [
+          "chest_pain"
+        ],
+        "duration": "2_3_days",
+        "site": "left_chest",
+        "onset": "exertion",
+        "character": "pressure",
+        "radiation": [
+          "arm",
+          "jaw"
+        ],
+        "severity": 8,
+        "associated": [
+          "sob",
+          "sweating"
+        ],
+        "relieving": [
+          "rest"
+        ],
+        "pastMedical": [
+          "hypertension"
+        ],
+        "pastSurgery": "no",
+        "currentMeds": "yes",
+        "currentMedsDetail": "Amlodipine 5mg OD",
+        "drugAllergy": "no",
+        "familyHistory": [
+          "heart_disease"
+        ],
+        "smoking": "former",
+        "alcohol": "social",
+        "diet": "vegetarian"
+      }
+    },
+    {
+      "id": "ch_102",
+      "sessionId": "sess_102",
+      "answers": {
+        "chiefComplaint": [
+          "diabetes_fu"
+        ],
+        "duration": "years",
+        "severity": 4,
+        "pastMedical": [
+          "diabetes",
+          "hypertension"
+        ],
+        "pastSurgery": "no",
+        "currentMeds": "yes",
+        "currentMedsDetail": "Metformin 500mg BD, Telmisartan 40mg OD",
+        "drugAllergy": "yes",
+        "drugAllergyDetail": "Penicillin (Skin rash)",
+        "familyHistory": [
+          "diabetes"
+        ],
+        "diet": "mixed",
+        "exercise": "sedentary"
+      }
+    },
+    {
+      "id": "ch_103",
+      "sessionId": "sess_103",
+      "answers": {
+        "chiefComplaint": [
+          "joint_pain"
+        ],
+        "duration": "years",
+        "site": "all_over",
+        "severity": 6,
+        "pastMedical": [
+          "osteoarthritis"
+        ],
+        "currentMeds": "yes",
+        "currentMedsDetail": "Ayurvedic Shallaki tablets, Paracetamol SOS",
+        "prakriti": "vata_pitta",
+        "vikriti": "vata_vriddhi",
+        "sara": "madhyama",
+        "samhanana": "madhyama",
+        "pramana": "sama",
+        "satmya": "sarva_rasa",
+        "sattva": "madhyama",
+        "aharaShakti": "manda_agni",
+        "vyayamaShakti": "alpa",
+        "vaya": "vriddha",
+        "aharaVihara": "Irregular meal timings, disturbed sleep due to joint stiffness",
+        "nidana": "Cold weather exposure, excessive dry food",
+        "samprapti": "Vata dosha aggravated in Sandhi (joints)"
+      }
+    },
+    {
+      "id": "rec_1789020726019_hskb3",
+      "createdAt": "2026-09-10T06:12:06.019Z",
+      "sessionId": "rec_1789020725582_9hf0q",
+      "answers": {
+        "chiefComplaint": [
+          "chest_pain"
+        ],
+        "severity": 9,
+        "radiation": [
+          "arm",
+          "jaw"
+        ],
+        "associated": [
+          "sob",
+          "sweating"
+        ]
+      },
+      "updatedAt": "2026-09-10T06:12:06.019Z"
+    },
+    {
+      "id": "rec_1789021001539_baezi",
+      "createdAt": "2026-09-10T06:16:41.539Z",
+      "sessionId": "rec_1789021001107_vhiwp",
+      "answers": {
+        "chiefComplaint": [
+          "chest_pain"
+        ],
+        "severity": 9,
+        "radiation": [
+          "arm",
+          "jaw"
+        ],
+        "associated": [
+          "sob",
+          "sweating"
+        ]
+      },
+      "updatedAt": "2026-09-10T06:16:41.539Z"
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc_101_1",
+      "sessionId": "sess_101",
+      "name": "Apollo_Prescription_Cardio.jpg",
+      "type": "prescription",
+      "uploadDate": "2024-11-15",
+      "source": "Apollo Hospitals, Delhi",
+      "status": "extracted",
+      "extractedData": {
+        "diagnosis": "Essential Hypertension, Stage 1",
+        "medicines": [
+          {
+            "name": "Amlodipine",
+            "dose": "5 mg",
+            "frequency": "Once daily (morning)",
+            "duration": "3 months"
+          },
+          {
+            "name": "Telmisartan",
+            "dose": "40 mg",
+            "frequency": "Once daily",
+            "duration": "3 months"
+          }
+        ],
+        "labValues": [],
+        "notes": "BP target < 130/80 mmHg. Low-salt diet advised."
+      },
+      "abnormal": false
+    },
+    {
+      "id": "doc_102_1",
+      "sessionId": "sess_102",
+      "name": "SRL_Lab_Report_HbA1c_CBC.pdf",
+      "type": "lab_report",
+      "uploadDate": "2024-10-22",
+      "source": "SRL Diagnostics",
+      "status": "extracted",
+      "extractedData": {
+        "diagnosis": "Diabetes Profile & CBC",
+        "medicines": [],
+        "labValues": [
+          {
+            "test": "HbA1c",
+            "value": "8.4",
+            "unit": "%",
+            "normalRange": "< 5.7",
+            "isAbnormal": true,
+            "status": "high"
+          },
+          {
+            "test": "Fasting Blood Sugar",
+            "value": "168",
+            "unit": "mg/dL",
+            "normalRange": "70–100",
+            "isAbnormal": true,
+            "status": "high"
+          },
+          {
+            "test": "Hemoglobin",
+            "value": "10.2",
+            "unit": "g/dL",
+            "normalRange": "12.0–15.5",
+            "isAbnormal": true,
+            "status": "low"
+          }
+        ],
+        "notes": "Poor glycemic control. Mild microcytic anemia."
+      },
+      "abnormal": true
+    }
+  ],
+  "ai_summaries": [
+    {
+      "id": "sum_101",
+      "sessionId": "sess_101",
+      "status": "pending_physician_review",
+      "confidenceScore": 0.94,
+      "sections": {
+        "patientInfo": "Ramesh Gupta, 58/M, ABHA: 12-3456-7890-1234, Token: A-101",
+        "chiefComplaint": "Chest pain radiating to left arm and jaw of 2–3 days duration, aggravated on exertion.",
+        "hpi": "Patient reports retrosternal pressure-type chest pain (8/10) radiating to left upper arm and jaw, starting 2–3 days ago with worsening on exertion. Associated with shortness of breath and cold diaphoresis. Partially relieved at rest.",
+        "pastMedical": "Known case of Essential Hypertension (3 years). No prior myocardial infarction reported.",
+        "pastSurgical": "No surgical history.",
+        "medications": "Amlodipine 5 mg OD, Telmisartan 40 mg OD (from Apollo prescription 15/11/2024).",
+        "allergies": "No known drug allergies (NKDA).",
+        "familyHistory": "Significant for ischemic heart disease in father (MI at age 55).",
+        "personalHistory": "Former smoker (quit 2 years ago, 15 pack-years). Occasional alcohol. Vegetarian.",
+        "reviewOfSystems": "Cardiovascular: Positive for exertional chest pain & dyspnea. No syncope or ankle edema.",
+        "priorInvestigations": "Prescription reviewed: Baseline BP 142/90 mmHg recorded previously.",
+        "importantAbnormals": "Acute exertional chest pain with radiating features; high cardiac risk profile.",
+        "timelineSummary": "2024: Diagnosed with Essential HTN -> 2026: Acute onset angina pectoris.",
+        "redFlags": "🚨 CRITICAL RED FLAG: Possible Acute Coronary Syndrome. Immediate ECG and cardiac enzyme evaluation mandated.",
+        "missingInfo": "Recent lipid profile, baseline ECG, renal function tests.",
+        "aiConfidenceNotes": "Source traceability: Patient direct voice interview (85%), uploaded prescription OCR (15%). Draft AI summary — Physician review required."
+      },
+      "sectionStatus": {
+        "patientInfo": "accepted",
+        "chiefComplaint": "accepted",
+        "hpi": "accepted",
+        "pastMedical": "accepted",
+        "pastSurgical": "accepted",
+        "medications": "accepted",
+        "allergies": "accepted",
+        "familyHistory": "accepted",
+        "personalHistory": "accepted",
+        "reviewOfSystems": "accepted",
+        "priorInvestigations": "accepted",
+        "importantAbnormals": "accepted",
+        "timelineSummary": "accepted",
+        "redFlags": "accepted",
+        "missingInfo": "accepted",
+        "aiConfidenceNotes": "accepted"
+      },
+      "physicianNotes": {},
+      "updatedAt": "2026-09-10T08:25:00.000Z"
+    },
+    {
+      "id": "sum_102",
+      "sessionId": "sess_102",
+      "status": "pending_physician_review",
+      "confidenceScore": 0.91,
+      "sections": {
+        "patientInfo": "Meera Verma, 42/F, ABHA: 98-7654-3210-9876, Token: A-102",
+        "chiefComplaint": "Type 2 Diabetes follow-up with worsening daytime fatigue for 1–3 months.",
+        "hpi": "Known diabetic presenting for routine follow-up. Reports generalized lethargy, polydipsia, and nocturia 2–3 times per night.",
+        "pastMedical": "Type 2 Diabetes Mellitus (diagnosed 2021), Hypertension (diagnosed 2022).",
+        "pastSurgical": "No surgical interventions.",
+        "medications": "Metformin 500 mg BD, Telmisartan 40 mg OD.",
+        "allergies": "⚠️ ALLERGY FLAG: Penicillin allergy reported (skin rash & urticaria). Cephalosporin caution advised.",
+        "familyHistory": "Mother had T2DM and diabetic retinopathy.",
+        "personalHistory": "Sedentary desk worker. Non-smoker, non-alcoholic.",
+        "reviewOfSystems": "Endocrine: Polydipsia, nocturia. Hematology: Easy fatigability.",
+        "priorInvestigations": "Lab report (22/10/2024): HbA1c 8.4% (Elevated), Fasting Blood Sugar 168 mg/dL (Elevated), Hemoglobin 10.2 g/dL (Mild microcytic anemia).",
+        "importantAbnormals": "Elevated HbA1c 8.4%, FBS 168 mg/dL, Hb 10.2 g/dL.",
+        "timelineSummary": "2021: T2DM diagnosed -> 2022: HTN diagnosed -> Oct 2024: HbA1c 8.4% -> Sep 2026: Intake consultation.",
+        "redFlags": "None detected.",
+        "missingInfo": "Urine microalbumin/creatinine ratio, fundus examination record.",
+        "aiConfidenceNotes": "Extracted from patient interview + SRL lab report OCR. AI-generated draft — Physician review required."
+      },
+      "sectionStatus": {
+        "chiefComplaint": "pending",
+        "hpi": "pending",
+        "medications": "pending",
+        "allergies": "pending",
+        "priorInvestigations": "pending",
+        "importantAbnormals": "pending"
+      },
+      "physicianNotes": {},
+      "updatedAt": "2026-09-10T08:43:00.000Z"
+    },
+    {
+      "id": "rec_1789020726032_32ylg",
+      "createdAt": "2026-09-10T06:12:06.032Z",
+      "sessionId": "rec_1789020725582_9hf0q",
+      "status": "pending_physician_review",
+      "sections": {
+        "patientInfo": "Anonymous Patient, /U, Token: A-106",
+        "chiefComplaint": "chest pain (unspecified duration).",
+        "hpi": "Patient presents with chest pain for unspecified duration. Radiation noted to: arm, jaw. Associated symptoms include sob, sweating. Pain/symptom severity reported as 9/10.",
+        "pastMedical": "No significant past medical illnesses reported.",
+        "pastSurgical": "No past surgical history.",
+        "medications": "No routine daily medications.",
+        "allergies": "No known drug allergies (NKDA).",
+        "familyHistory": "Non-contributory family history.",
+        "personalHistory": "Diet: Mixed. Smoking: None. Alcohol: None.",
+        "reviewOfSystems": "Negative for systemic review red flags.",
+        "priorInvestigations": "No prior diagnostic records uploaded.",
+        "importantAbnormals": "All extracted parameters within document reference ranges.",
+        "relevantTimeline": "0 document(s) on file from recent months.",
+        "redFlags": "🚨 CRITICAL: Possible Acute Coronary Syndrome — Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "missingInfo": "Awaiting physician physical examination, vitals measurement, and diagnostic confirmation.",
+        "aiConfidenceNotes": "Generated using VSarthi Clinical Intake Engine. Source attribution: patient direct interview + OCR extraction. AI-generated draft — Physician review required."
+      },
+      "safetyFlags": [],
+      "confidenceScore": 0.93,
+      "sectionStatus": {
+        "patientInfo": "pending",
+        "chiefComplaint": "pending",
+        "hpi": "pending",
+        "pastMedical": "pending",
+        "pastSurgical": "pending",
+        "medications": "pending",
+        "allergies": "pending",
+        "familyHistory": "pending",
+        "personalHistory": "pending",
+        "reviewOfSystems": "pending",
+        "priorInvestigations": "pending",
+        "importantAbnormals": "pending",
+        "relevantTimeline": "pending",
+        "redFlags": "pending",
+        "missingInfo": "pending",
+        "aiConfidenceNotes": "pending"
+      },
+      "physicianNotes": {},
+      "updatedAt": "2026-09-10T06:12:06.032Z"
+    },
+    {
+      "id": "rec_1789021001552_5kkik",
+      "createdAt": "2026-09-10T06:16:41.552Z",
+      "sessionId": "rec_1789021001107_vhiwp",
+      "status": "pending_physician_review",
+      "sections": {
+        "patientInfo": "Anonymous Patient, /U, Token: A-107",
+        "chiefComplaint": "chest pain (unspecified duration).",
+        "hpi": "Patient presents with chest pain for unspecified duration. Radiation noted to: arm, jaw. Associated symptoms include sob, sweating. Pain/symptom severity reported as 9/10.",
+        "pastMedical": "No significant past medical illnesses reported.",
+        "pastSurgical": "No past surgical history.",
+        "medications": "No routine daily medications.",
+        "allergies": "No known drug allergies (NKDA).",
+        "familyHistory": "Non-contributory family history.",
+        "personalHistory": "Diet: Mixed. Smoking: None. Alcohol: None.",
+        "reviewOfSystems": "Negative for systemic review red flags.",
+        "priorInvestigations": "No prior diagnostic records uploaded.",
+        "importantAbnormals": "All extracted parameters within document reference ranges.",
+        "relevantTimeline": "0 document(s) on file from recent months.",
+        "redFlags": "🚨 CRITICAL: Possible Acute Coronary Syndrome — Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "missingInfo": "Awaiting physician physical examination, vitals measurement, and diagnostic confirmation.",
+        "aiConfidenceNotes": "Generated using VSarthi Clinical Intake Engine. Source attribution: patient direct interview + OCR extraction. AI-generated draft — Physician review required."
+      },
+      "safetyFlags": [],
+      "confidenceScore": 0.93,
+      "sectionStatus": {
+        "patientInfo": "pending",
+        "chiefComplaint": "pending",
+        "hpi": "pending",
+        "pastMedical": "pending",
+        "pastSurgical": "pending",
+        "medications": "pending",
+        "allergies": "pending",
+        "familyHistory": "pending",
+        "personalHistory": "pending",
+        "reviewOfSystems": "pending",
+        "priorInvestigations": "pending",
+        "importantAbnormals": "pending",
+        "relevantTimeline": "pending",
+        "redFlags": "pending",
+        "missingInfo": "pending",
+        "aiConfidenceNotes": "pending"
+      },
+      "physicianNotes": {},
+      "updatedAt": "2026-09-10T06:16:41.552Z"
+    }
+  ],
+  "consents": [
+    {
+      "id": "cns_101",
+      "sessionId": "sess_101",
+      "patientId": "pat_101",
+      "dataCapture": true,
+      "dataSharing": true,
+      "acceptedAt": "2026-09-10T08:15:30.000Z",
+      "policyVersion": "DPDPA-2023-V2.1",
+      "ipAddress": "192.168.1.101",
+      "revoked": false
+    },
+    {
+      "id": "cns_102",
+      "sessionId": "sess_102",
+      "patientId": "pat_102",
+      "dataCapture": true,
+      "dataSharing": true,
+      "acceptedAt": "2026-09-10T08:30:45.000Z",
+      "policyVersion": "DPDPA-2023-V2.1",
+      "ipAddress": "192.168.1.105",
+      "revoked": false
+    },
+    {
+      "id": "rec_1789020726012_41ib9",
+      "createdAt": "2026-09-10T06:12:06.012Z",
+      "sessionId": "rec_1789020725582_9hf0q",
+      "patientId": "pat_101",
+      "dataCapture": true,
+      "dataSharing": true,
+      "policyVersion": "DPDPA-2023-V2.1",
+      "acceptedAt": "2026-09-10T06:12:06.012Z",
+      "ipAddress": "::1",
+      "revoked": false
+    },
+    {
+      "id": "rec_1789021001530_9m8je",
+      "createdAt": "2026-09-10T06:16:41.531Z",
+      "sessionId": "rec_1789021001107_vhiwp",
+      "patientId": "pat_101",
+      "dataCapture": true,
+      "dataSharing": true,
+      "policyVersion": "DPDPA-2023-V2.1",
+      "acceptedAt": "2026-09-10T06:16:41.530Z",
+      "ipAddress": "::1",
+      "revoked": false
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "aud_1",
+      "actorRole": "patient",
+      "actorId": "pat_101",
+      "action": "CONSENT_GRANTED",
+      "targetType": "consent",
+      "targetId": "cns_101",
+      "timestamp": "2026-09-10T08:15:30.000Z",
+      "details": {
+        "policyVersion": "DPDPA-2023-V2.1",
+        "scope": "capture_and_share"
+      }
+    },
+    {
+      "id": "aud_2",
+      "actorRole": "system",
+      "actorId": "redflag_engine",
+      "action": "RED_FLAG_TRIGGERED",
+      "targetType": "session",
+      "targetId": "sess_101",
+      "timestamp": "2026-09-10T08:22:00.000Z",
+      "details": {
+        "ruleId": "acs",
+        "severity": "critical",
+        "symptom": "chest_pain + radiation + sob"
+      }
+    },
+    {
+      "id": "aud_3",
+      "actorRole": "system",
+      "actorId": "ocr_pipeline",
+      "action": "DOCUMENT_OCR_PROCESSED",
+      "targetType": "document",
+      "targetId": "doc_101_1",
+      "timestamp": "2026-09-10T08:23:15.000Z",
+      "details": {
+        "filename": "Apollo_Prescription_Cardio.jpg",
+        "entitiesFound": 4
+      }
+    },
+    {
+      "id": "aud_4",
+      "actorRole": "system",
+      "actorId": "ai_summarizer",
+      "action": "SUMMARY_GENERATED",
+      "targetType": "ai_summary",
+      "targetId": "sum_101",
+      "timestamp": "2026-09-10T08:24:00.000Z",
+      "details": {
+        "sectionsCount": 16,
+        "confidenceScore": 0.94
+      }
+    },
+    {
+      "id": "aud_1789020685305_3mkt",
+      "createdAt": "2026-09-10T06:11:25.305Z",
+      "actorRole": "doctor",
+      "actorId": "usr_doc_1",
+      "action": "USER_LOGIN",
+      "targetType": "user",
+      "targetId": "usr_doc_1",
+      "timestamp": "2026-09-10T06:11:25.305Z",
+      "details": {
+        "email": "dr.sharma@hospital.org",
+        "ip": "::1"
+      }
+    },
+    {
+      "id": "aud_1789020685319_wxeh",
+      "createdAt": "2026-09-10T06:11:25.319Z",
+      "actorRole": "patient",
+      "actorId": "rec_1789020685318_1b0f1",
+      "action": "SESSION_INITIALIZED",
+      "targetType": "session",
+      "targetId": "rec_1789020685318_1b0f1",
+      "timestamp": "2026-09-10T06:11:25.319Z",
+      "details": {
+        "token": "A-105",
+        "language": "hi",
+        "isKiosk": true
+      }
+    },
+    {
+      "id": "aud_1789020725568_yzxp",
+      "createdAt": "2026-09-10T06:12:05.568Z",
+      "actorRole": "doctor",
+      "actorId": "usr_doc_1",
+      "action": "USER_LOGIN",
+      "targetType": "user",
+      "targetId": "usr_doc_1",
+      "timestamp": "2026-09-10T06:12:05.568Z",
+      "details": {
+        "email": "dr.sharma@hospital.org",
+        "ip": "::1"
+      }
+    },
+    {
+      "id": "aud_1789020725584_jaip",
+      "createdAt": "2026-09-10T06:12:05.584Z",
+      "actorRole": "patient",
+      "actorId": "rec_1789020725582_9hf0q",
+      "action": "SESSION_INITIALIZED",
+      "targetType": "session",
+      "targetId": "rec_1789020725582_9hf0q",
+      "timestamp": "2026-09-10T06:12:05.584Z",
+      "details": {
+        "token": "A-106",
+        "language": "hi",
+        "isKiosk": true
+      }
+    },
+    {
+      "id": "aud_1789020726013_qsd1",
+      "createdAt": "2026-09-10T06:12:06.013Z",
+      "actorRole": "patient",
+      "actorId": "pat_101",
+      "action": "CONSENT_RECORDED",
+      "targetType": "consent",
+      "targetId": "rec_1789020726012_41ib9",
+      "timestamp": "2026-09-10T06:12:06.013Z",
+      "details": {
+        "policyVersion": "DPDPA-2023-V2.1",
+        "ip": "::1"
+      }
+    },
+    {
+      "id": "aud_1789020726022_e9cp",
+      "createdAt": "2026-09-10T06:12:06.022Z",
+      "actorRole": "system",
+      "actorId": "redflag_engine",
+      "action": "RED_FLAG_TRIGGERED",
+      "targetType": "session",
+      "targetId": "rec_1789020725582_9hf0q",
+      "timestamp": "2026-09-10T06:12:06.022Z",
+      "details": {
+        "id": "acs",
+        "name": "Possible Acute Coronary Syndrome",
+        "severity": "critical",
+        "message": "Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "actionRequired": "Alert Triage & Prepare ECG"
+      }
+    },
+    {
+      "id": "aud_1789020726034_xuto",
+      "createdAt": "2026-09-10T06:12:06.034Z",
+      "actorRole": "system",
+      "actorId": "ai_summarizer",
+      "action": "SUMMARY_GENERATED",
+      "targetType": "ai_summary",
+      "targetId": "rec_1789020726032_32ylg",
+      "timestamp": "2026-09-10T06:12:06.034Z",
+      "details": {
+        "sectionsCount": 16,
+        "safetyFlagsCount": 0
+      }
+    },
+    {
+      "id": "aud_1789020726565_bpz1",
+      "createdAt": "2026-09-10T06:12:06.565Z",
+      "actorRole": "system",
+      "actorId": "his_adapter",
+      "action": "HIS_EMR_EXPORT_DISPATCHED",
+      "targetType": "session",
+      "targetId": "rec_1789020725582_9hf0q",
+      "timestamp": "2026-09-10T06:12:06.565Z",
+      "details": {
+        "transactionId": "ABDM-TXN-1789020726563-D1E467ED",
+        "mode": "MOCK_SANDBOX"
+      }
+    },
+    {
+      "id": "aud_1789021001094_91u5",
+      "createdAt": "2026-09-10T06:16:41.094Z",
+      "actorRole": "doctor",
+      "actorId": "usr_doc_1",
+      "action": "USER_LOGIN",
+      "targetType": "user",
+      "targetId": "usr_doc_1",
+      "timestamp": "2026-09-10T06:16:41.094Z",
+      "details": {
+        "email": "dr.sharma@hospital.org",
+        "ip": "::1"
+      }
+    },
+    {
+      "id": "aud_1789021001108_48w5",
+      "createdAt": "2026-09-10T06:16:41.108Z",
+      "actorRole": "patient",
+      "actorId": "rec_1789021001107_vhiwp",
+      "action": "SESSION_INITIALIZED",
+      "targetType": "session",
+      "targetId": "rec_1789021001107_vhiwp",
+      "timestamp": "2026-09-10T06:16:41.108Z",
+      "details": {
+        "token": "A-107",
+        "language": "hi",
+        "isKiosk": true
+      }
+    },
+    {
+      "id": "aud_1789021001532_d671",
+      "createdAt": "2026-09-10T06:16:41.532Z",
+      "actorRole": "patient",
+      "actorId": "pat_101",
+      "action": "CONSENT_RECORDED",
+      "targetType": "consent",
+      "targetId": "rec_1789021001530_9m8je",
+      "timestamp": "2026-09-10T06:16:41.532Z",
+      "details": {
+        "policyVersion": "DPDPA-2023-V2.1",
+        "ip": "::1"
+      }
+    },
+    {
+      "id": "aud_1789021001542_xbwo",
+      "createdAt": "2026-09-10T06:16:41.542Z",
+      "actorRole": "system",
+      "actorId": "redflag_engine",
+      "action": "RED_FLAG_TRIGGERED",
+      "targetType": "session",
+      "targetId": "rec_1789021001107_vhiwp",
+      "timestamp": "2026-09-10T06:16:41.542Z",
+      "details": {
+        "id": "acs",
+        "name": "Possible Acute Coronary Syndrome",
+        "severity": "critical",
+        "message": "Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "actionRequired": "Alert Triage & Prepare ECG"
+      }
+    },
+    {
+      "id": "aud_1789021001554_t5wm",
+      "createdAt": "2026-09-10T06:16:41.555Z",
+      "actorRole": "system",
+      "actorId": "ai_summarizer",
+      "action": "SUMMARY_GENERATED",
+      "targetType": "ai_summary",
+      "targetId": "rec_1789021001552_5kkik",
+      "timestamp": "2026-09-10T06:16:41.555Z",
+      "details": {
+        "sectionsCount": 16,
+        "safetyFlagsCount": 0
+      }
+    },
+    {
+      "id": "aud_1789021002080_fe3l",
+      "createdAt": "2026-09-10T06:16:42.080Z",
+      "actorRole": "system",
+      "actorId": "his_adapter",
+      "action": "HIS_EMR_EXPORT_DISPATCHED",
+      "targetType": "session",
+      "targetId": "rec_1789021001107_vhiwp",
+      "timestamp": "2026-09-10T06:16:42.080Z",
+      "details": {
+        "transactionId": "ABDM-TXN-1789021002078-3A136A12",
+        "mode": "MOCK_SANDBOX"
+      }
+    },
+    {
+      "id": "aud_1789022586889_6m05",
+      "createdAt": "2026-09-10T06:43:06.889Z",
+      "actorRole": "nurse",
+      "actorId": "triage_staff",
+      "action": "TRIAGE_PRIORITY_UPDATED",
+      "targetType": "session",
+      "targetId": "rec_1789021001107_vhiwp",
+      "timestamp": "2026-09-10T06:43:06.889Z",
+      "details": {
+        "priority": "urgent"
+      }
+    },
+    {
+      "id": "aud_1789022591201_ambr",
+      "createdAt": "2026-09-10T06:43:11.201Z",
+      "actorRole": "nurse",
+      "actorId": "triage_staff",
+      "action": "TRIAGE_PRIORITY_UPDATED",
+      "targetType": "session",
+      "targetId": "sess_102",
+      "timestamp": "2026-09-10T06:43:11.201Z",
+      "details": {
+        "priority": "urgent"
+      }
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif_1",
+      "type": "red_flag",
+      "priority": "high",
+      "targetRole": "doctor",
+      "message": "🚨 Token A-101 (Ramesh Gupta, 58/M): Possible Acute Coronary Syndrome detected.",
+      "timestamp": "2026-09-10T08:22:00.000Z",
+      "isRead": false,
+      "sessionId": "sess_101"
+    },
+    {
+      "id": "rec_1789020726021_5pgt4",
+      "createdAt": "2026-09-10T06:12:06.021Z",
+      "type": "red_flag",
+      "priority": "high",
+      "targetRole": "doctor",
+      "message": "🚨 Emergency Red-Flag in session rec_1789020725582_9hf0q: Possible Acute Coronary Syndrome",
+      "sessionId": "rec_1789020725582_9hf0q",
+      "timestamp": "2026-09-10T06:12:06.021Z",
+      "isRead": false
+    },
+    {
+      "id": "rec_1789021001542_4n3rh",
+      "createdAt": "2026-09-10T06:16:41.542Z",
+      "type": "red_flag",
+      "priority": "high",
+      "targetRole": "doctor",
+      "message": "🚨 Emergency Red-Flag in session rec_1789021001107_vhiwp: Possible Acute Coronary Syndrome",
+      "sessionId": "rec_1789021001107_vhiwp",
+      "timestamp": "2026-09-10T06:16:41.542Z",
+      "isRead": false
+    }
+  ],
+  "system_config": {
+    "hospitalName": "AIIMS New Delhi - Smart OPD Intake",
+    "retentionDays": 90,
+    "emergencyNumber": "112",
+    "ambulanceNumber": "108",
+    "abdmEnvironment": "sandbox",
+    "abdmClientId": "ABDM-SBX-VSARTHI-9921",
+    "ocrProvider": "hybrid_tesseract_vision",
+    "kioskInactivitySeconds": 60,
+    "aiModel": "Gemini-3.8-Flash-Clinical"
+  }
+}
