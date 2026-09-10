@@ -121,11 +121,11 @@ export default function InterviewScreen() {
         id: Date.now() + 1,
         role: 'assistant',
         text: language === 'hi'
-          ? 'बहुत अच्छे! प्रश्नावली पूरी हो गई। अब अपने दस्तावेज़ अपलोड करें।'
-          : 'Excellent! Interview complete. You can now upload your medical documents.',
+          ? 'बहुत अच्छे! सभी प्रश्न पूरे हो गए। आपकी क्लिनिकल रिपोर्ट तैयार की जा रही है…'
+          : 'Excellent! All questions answered. Loading your clinical report summary now…',
         time: new Date(),
       });
-      setTimeout(() => actions.setStep('documents'), 600);
+      setTimeout(() => actions.setStep('summary'), 400);
     } else {
       actions.setQuestionIndex(nextQ);
       // Add assistant message for next question

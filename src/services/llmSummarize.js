@@ -22,8 +22,8 @@ function labelsFor(question, values, lang = 'en') {
 }
 
 // Build section text from interview answers
-function buildHPIText(answers, questions) {
-  const hpiQs = questions.filter(q => q.section === SECTIONS.HPI);
+function buildHPIText(answers = {}, questions = []) {
+  const hpiQs = (questions || []).filter(q => q && q.section === SECTIONS.HPI);
   const parts = [];
 
   const chief = (answers.chiefComplaint || []).join(', ').replace(/_/g, ' ');
@@ -98,11 +98,11 @@ function buildROSText(answers) {
   return `Positive ROS findings: ${ros.filter(r => r !== 'none').join(', ').replace(/_/g, ' ')}.`;
 }
 
-function buildPriorInvestigationsText(documents) {
-  if (!documents.length) return 'No prior investigations provided.';
+function buildPriorInvestigationsText(documents = []) {
+  if (!Array.isArray(documents) || !documents.length) return 'No prior investigations provided.';
   return documents.map(doc => {
     const d = doc.extractedData;
-    let text = `[${doc.uploadDate}] ${d?.diagnosis || doc.name} (Source: ${d?.source || doc.source || 'Unknown'}).`;
+    let text = `[${doc.uploadDate || 'Attached'}] ${d?.diagnosis || doc.name || 'Document'} (Source: ${d?.source || doc.source || 'Uploaded file'}).`;
     if (d?.labValues?.length) {
       const abnormals = d.labValues.filter(lv => lv.isAbnormal);
       if (abnormals.length) {
@@ -116,8 +116,8 @@ function buildPriorInvestigationsText(documents) {
   }).join('\n');
 }
 
-function buildAYUSHText(answers) {
-  if (!answers.prakriti) return null;
+function buildAYUSHText(answers = {}) {
+  if (!answers?.prakriti) return null;
   const parts = [];
   if (answers.prakriti) parts.push(`Prakriti: ${answers.prakriti.replace(/_/g, '-')}`);
   if (answers.agni)     parts.push(`Agni (Digestive capacity): ${answers.agni}`);
@@ -129,39 +129,41 @@ function buildAYUSHText(answers) {
 }
 
 // Main summary generation function
-export async function generateSummary({ patient, answers, documents, questions, language = 'en' }) {
+export async function generateSummary({ patient = {}, answers = {}, documents = [], questions = [], language = 'en' } = {}) {
   // Rapid processing with zero lag
   await new Promise(r => setTimeout(r, 50));
 
-  const chiefComplaints = (answers.chiefComplaint || []).join(', ').replace(/_/g, ' ');
-  const ayushText = buildAYUSHText(answers);
+  const safeAnswers = answers || {};
+  const safeDocs = Array.isArray(documents) ? documents : [];
+  const chiefComplaints = (safeAnswers.chiefComplaint || []).join(', ').replace(/_/g, ' ');
+  const ayushText = buildAYUSHText(safeAnswers);
 
   const sections = {
     chiefComplaint: chiefComplaints
-      ? `${chiefComplaints} — duration ${(answers.duration || 'unspecified').replace(/_/g, ' ')}.`
+      ? `${chiefComplaints} — duration ${(safeAnswers.duration || 'unspecified').replace(/_/g, ' ')}.`
       : 'Chief complaint not specified.',
 
-    hpi: buildHPIText(answers, questions),
-    pastHistory: buildPastHistoryText(answers),
-    drugAllergy: buildDrugAllergyText(answers),
-    familyHistory: buildFamilyHistoryText(answers),
-    personalHistory: buildPersonalHistoryText(answers),
-    reviewOfSystems: buildROSText(answers),
-    priorInvestigations: buildPriorInvestigationsText(documents),
+    hpi: buildHPIText(safeAnswers, questions),
+    pastHistory: buildPastHistoryText(safeAnswers),
+    drugAllergy: buildDrugAllergyText(safeAnswers),
+    familyHistory: buildFamilyHistoryText(safeAnswers),
+    personalHistory: buildPersonalHistoryText(safeAnswers),
+    reviewOfSystems: buildROSText(safeAnswers),
+    priorInvestigations: buildPriorInvestigationsText(safeDocs),
     ...(ayushText ? { ayush: ayushText } : {}),
   };
 
   // Patient-friendly version (simplified language)
   const patientFriendly = {
     chiefComplaint: `You came in today because of: ${chiefComplaints || 'your concern'}.`,
-    hpi: `Your symptoms started ${(answers.duration || '').replace(/_/g, ' ')} ago. ${answers.severity !== undefined ? `The severity is ${answers.severity} out of 10.` : ''}`,
+    hpi: `Your symptoms started ${(safeAnswers.duration || '').replace(/_/g, ' ')} ago. ${safeAnswers.severity !== undefined ? `The severity is ${safeAnswers.severity} out of 10.` : ''}`,
     pastHistory: sections.pastHistory,
     drugAllergy: sections.drugAllergy,
     familyHistory: sections.familyHistory,
     personalHistory: sections.personalHistory,
     reviewOfSystems: sections.reviewOfSystems,
-    priorInvestigations: documents.length
-      ? `You have shared ${documents.length} medical document(s) from the past.`
+    priorInvestigations: safeDocs.length
+      ? `You have shared ${safeDocs.length} medical document(s) from the past.`
       : 'No past documents were shared.',
   };
 

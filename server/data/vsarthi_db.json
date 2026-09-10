@@ -256,6 +256,18 @@
       "isKiosk": true,
       "redFlag": null,
       "startedAt": "2026-09-10T17:30:55.443Z"
+    },
+    {
+      "id": "rec_1789062247257_3a1a6c91",
+      "createdAt": "2026-09-10T17:44:07.257Z",
+      "token": "A-110",
+      "status": "in_progress",
+      "priority": "routine",
+      "language": "hi",
+      "ayushMode": false,
+      "isKiosk": true,
+      "redFlag": null,
+      "startedAt": "2026-09-10T17:44:07.257Z"
     }
   ],
   "clinical_histories": [
@@ -1229,6 +1241,112 @@
         "language": "hi",
         "isKiosk": true
       }
+    },
+    {
+      "id": "rec_1789061703314_cb713af7",
+      "createdAt": "2026-09-10T17:35:03.314Z",
+      "actorRole": "patient",
+      "actorId": "anonymous",
+      "action": "PRESCRIPTION_SCANNED",
+      "targetType": "prescription",
+      "targetId": "rec_1789061703311_92304de6",
+      "timestamp": "2026-09-10T17:35:03.314Z",
+      "details": {
+        "filename": "ravendra_signature.jpeg",
+        "medicinesFound": 3,
+        "safetyFlagsCount": 0,
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "rec_1789061950580_bf6059ac",
+      "createdAt": "2026-09-10T17:39:10.580Z",
+      "actorRole": "patient",
+      "actorId": "VSAI-SESS-MTVT7R16-FRIXA",
+      "action": "CHAT_MESSAGE_SENT",
+      "targetType": "chat",
+      "targetId": "VSAI-SESS-MTVT7R16-FRIXA",
+      "timestamp": "2026-09-10T17:39:10.580Z",
+      "details": {
+        "success": true,
+        "isEmergencyFlag": false,
+        "messageLength": 5
+      }
+    },
+    {
+      "id": "rec_1789061964816_6e6a604f",
+      "createdAt": "2026-09-10T17:39:24.816Z",
+      "actorRole": "patient",
+      "actorId": "VSAI-SESS-MTVT7R16-FRIXA",
+      "action": "CHAT_MESSAGE_SENT",
+      "targetType": "chat",
+      "targetId": "VSAI-SESS-MTVT7R16-FRIXA",
+      "timestamp": "2026-09-10T17:39:24.816Z",
+      "details": {
+        "success": true,
+        "isEmergencyFlag": false,
+        "messageLength": 19
+      }
+    },
+    {
+      "id": "rec_1789061983887_59ee1740",
+      "createdAt": "2026-09-10T17:39:43.887Z",
+      "actorRole": "patient",
+      "actorId": "VSAI-SESS-MTVT7R16-FRIXA",
+      "action": "CHAT_MESSAGE_SENT",
+      "targetType": "chat",
+      "targetId": "VSAI-SESS-MTVT7R16-FRIXA",
+      "timestamp": "2026-09-10T17:39:43.887Z",
+      "details": {
+        "success": true,
+        "isEmergencyFlag": false,
+        "messageLength": 37
+      }
+    },
+    {
+      "id": "rec_1789062031506_5d9264fe",
+      "createdAt": "2026-09-10T17:40:31.506Z",
+      "actorRole": "patient",
+      "actorId": "anonymous",
+      "action": "PRESCRIPTION_SCANNED",
+      "targetType": "prescription",
+      "targetId": "rec_1789062031504_84ddfd05",
+      "timestamp": "2026-09-10T17:40:31.506Z",
+      "details": {
+        "filename": "Screenshot_2026-04-23_093319.png",
+        "medicinesFound": 3,
+        "safetyFlagsCount": 0,
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "rec_1789062246770_b14cea54",
+      "createdAt": "2026-09-10T17:44:06.771Z",
+      "actorRole": "doctor",
+      "actorId": "usr_doc_1",
+      "action": "USER_LOGIN",
+      "targetType": "user",
+      "targetId": "usr_doc_1",
+      "timestamp": "2026-09-10T17:44:06.770Z",
+      "details": {
+        "email": "dr.sharma@hospital.org",
+        "ipHash": "eff8e7ca"
+      }
+    },
+    {
+      "id": "rec_1789062247259_a7dce3ba",
+      "createdAt": "2026-09-10T17:44:07.259Z",
+      "actorRole": "patient",
+      "actorId": "rec_1789062247257_3a1a6c91",
+      "action": "SESSION_INITIALIZED",
+      "targetType": "session",
+      "targetId": "rec_1789062247257_3a1a6c91",
+      "timestamp": "2026-09-10T17:44:07.259Z",
+      "details": {
+        "token": "A-110",
+        "language": "hi",
+        "isKiosk": true
+      }
     }
   ],
   "notifications": [
@@ -1287,6 +1405,327 @@
     "kioskInactivitySeconds": 60,
     "aiModel": "Gemini-3.8-Flash-Clinical"
   },
-  "prescriptions": [],
+  "prescriptions": [
+    {
+      "id": "rec_1789061703311_92304de6",
+      "createdAt": "2026-09-10T17:35:03.311Z",
+      "sessionId": null,
+      "filename": "ravendra_signature.jpeg",
+      "mimeType": "image/jpeg",
+      "status": "extracted",
+      "extractedData": {
+        "patientName": {
+          "value": "Mr. Rajesh Kumar",
+          "confidence": "high"
+        },
+        "patientAge": {
+          "value": "48 Y / Male",
+          "confidence": "high"
+        },
+        "date": {
+          "value": "2026-09-10",
+          "confidence": "high"
+        },
+        "doctorName": {
+          "value": "Dr. K. S. Sharma, MD (Med)",
+          "confidence": "high"
+        },
+        "doctorRegistration": {
+          "value": "MCI-48291",
+          "confidence": "high"
+        },
+        "hospitalClinic": {
+          "value": "City Care Specialty Hospital, OPD-4",
+          "confidence": "high"
+        },
+        "diagnosis": {
+          "value": "Essential Hypertension, Type 2 Diabetes Mellitus (Controlled)",
+          "confidence": "high"
+        },
+        "clinicalNotes": {
+          "value": "BP: 138/86 mmHg, Pulse: 76 bpm, Fasting Blood Sugar: 124 mg/dL. Advised low salt & diabetic diet.",
+          "confidence": "high"
+        },
+        "medicines": [
+          {
+            "name": {
+              "value": "Tab. Telmisartan",
+              "confidence": "high"
+            },
+            "strength": {
+              "value": "40 mg",
+              "confidence": "high"
+            },
+            "frequency": {
+              "value": "Once daily (Morning)",
+              "confidence": "high"
+            },
+            "duration": {
+              "value": "30 Days",
+              "confidence": "high"
+            },
+            "route": {
+              "value": "Oral",
+              "confidence": "high"
+            },
+            "instructions": {
+              "value": "After breakfast",
+              "confidence": "high"
+            }
+          },
+          {
+            "name": {
+              "value": "Tab. Metformin HCl (ER)",
+              "confidence": "high"
+            },
+            "strength": {
+              "value": "500 mg",
+              "confidence": "high"
+            },
+            "frequency": {
+              "value": "Twice daily (BD)",
+              "confidence": "high"
+            },
+            "duration": {
+              "value": "30 Days",
+              "confidence": "high"
+            },
+            "route": {
+              "value": "Oral",
+              "confidence": "high"
+            },
+            "instructions": {
+              "value": "With meals",
+              "confidence": "high"
+            }
+          },
+          {
+            "name": {
+              "value": "Tab. Atorvastatin",
+              "confidence": "high"
+            },
+            "strength": {
+              "value": "10 mg",
+              "confidence": "high"
+            },
+            "frequency": {
+              "value": "Once daily (Bedtime)",
+              "confidence": "high"
+            },
+            "duration": {
+              "value": "30 Days",
+              "confidence": "high"
+            },
+            "route": {
+              "value": "Oral",
+              "confidence": "high"
+            },
+            "instructions": {
+              "value": "Night after dinner",
+              "confidence": "high"
+            }
+          }
+        ],
+        "investigations": {
+          "value": "HbA1c, Serum Creatinine, Lipid Profile in 4 weeks",
+          "confidence": "high"
+        },
+        "followUp": {
+          "value": "Review after 1 month with investigation reports",
+          "confidence": "high"
+        },
+        "overallConfidence": "high",
+        "readabilityIssues": [],
+        "warnings": [
+          "Monitor blood pressure once weekly.",
+          "Do not stop anti-hypertensive medication without consulting physician."
+        ]
+      },
+      "safetyFlags": [],
+      "guidance": {
+        "urgencyLevel": "routine",
+        "urgencyLabel": "Routine",
+        "urgencyColor": "green",
+        "steps": [
+          "Follow all instructions written by your prescribing doctor exactly as stated.",
+          "Take all medicines at the prescribed times and doses. Do not skip or double doses.",
+          "If you are unsure about any medicine instruction, ask your pharmacist before taking it.",
+          "Follow-up: Review after 1 month with investigation reports",
+          "Review the safety flags highlighted below and discuss them with your doctor or pharmacist.",
+          "Do not change your dosage or stop medication without consulting your doctor.",
+          "If you experience any unexpected side effects, contact your doctor or pharmacist promptly."
+        ],
+        "consultationType": {
+          "specialty": "Cardiologist or General Physician",
+          "reason": "Blood pressure management"
+        }
+      },
+      "overallConfidence": "high",
+      "userConfirmed": false,
+      "confirmedData": null,
+      "imageStoredAt": null,
+      "scannedAt": "2026-09-10T17:35:03.311Z"
+    },
+    {
+      "id": "rec_1789062031504_84ddfd05",
+      "createdAt": "2026-09-10T17:40:31.504Z",
+      "sessionId": null,
+      "filename": "Screenshot_2026-04-23_093319.png",
+      "mimeType": "image/png",
+      "status": "extracted",
+      "extractedData": {
+        "patientName": {
+          "value": "Mr. Rajesh Kumar",
+          "confidence": "high"
+        },
+        "patientAge": {
+          "value": "48 Y / Male",
+          "confidence": "high"
+        },
+        "date": {
+          "value": "2026-09-10",
+          "confidence": "high"
+        },
+        "doctorName": {
+          "value": "Dr. K. S. Sharma, MD (Med)",
+          "confidence": "high"
+        },
+        "doctorRegistration": {
+          "value": "MCI-48291",
+          "confidence": "high"
+        },
+        "hospitalClinic": {
+          "value": "City Care Specialty Hospital, OPD-4",
+          "confidence": "high"
+        },
+        "diagnosis": {
+          "value": "Essential Hypertension, Type 2 Diabetes Mellitus (Controlled)",
+          "confidence": "high"
+        },
+        "clinicalNotes": {
+          "value": "BP: 138/86 mmHg, Pulse: 76 bpm, Fasting Blood Sugar: 124 mg/dL. Advised low salt & diabetic diet.",
+          "confidence": "high"
+        },
+        "medicines": [
+          {
+            "name": {
+              "value": "Tab. Telmisartan",
+              "confidence": "high"
+            },
+            "strength": {
+              "value": "40 mg",
+              "confidence": "high"
+            },
+            "frequency": {
+              "value": "Once daily (Morning)",
+              "confidence": "high"
+            },
+            "duration": {
+              "value": "30 Days",
+              "confidence": "high"
+            },
+            "route": {
+              "value": "Oral",
+              "confidence": "high"
+            },
+            "instructions": {
+              "value": "After breakfast",
+              "confidence": "high"
+            }
+          },
+          {
+            "name": {
+              "value": "Tab. Metformin HCl (ER)",
+              "confidence": "high"
+            },
+            "strength": {
+              "value": "500 mg",
+              "confidence": "high"
+            },
+            "frequency": {
+              "value": "Twice daily (BD)",
+              "confidence": "high"
+            },
+            "duration": {
+              "value": "30 Days",
+              "confidence": "high"
+            },
+            "route": {
+              "value": "Oral",
+              "confidence": "high"
+            },
+            "instructions": {
+              "value": "With meals",
+              "confidence": "high"
+            }
+          },
+          {
+            "name": {
+              "value": "Tab. Atorvastatin",
+              "confidence": "high"
+            },
+            "strength": {
+              "value": "10 mg",
+              "confidence": "high"
+            },
+            "frequency": {
+              "value": "Once daily (Bedtime)",
+              "confidence": "high"
+            },
+            "duration": {
+              "value": "30 Days",
+              "confidence": "high"
+            },
+            "route": {
+              "value": "Oral",
+              "confidence": "high"
+            },
+            "instructions": {
+              "value": "Night after dinner",
+              "confidence": "high"
+            }
+          }
+        ],
+        "investigations": {
+          "value": "HbA1c, Serum Creatinine, Lipid Profile in 4 weeks",
+          "confidence": "high"
+        },
+        "followUp": {
+          "value": "Review after 1 month with investigation reports",
+          "confidence": "high"
+        },
+        "overallConfidence": "high",
+        "readabilityIssues": [],
+        "warnings": [
+          "Monitor blood pressure once weekly.",
+          "Do not stop anti-hypertensive medication without consulting physician."
+        ]
+      },
+      "safetyFlags": [],
+      "guidance": {
+        "urgencyLevel": "routine",
+        "urgencyLabel": "Routine",
+        "urgencyColor": "green",
+        "steps": [
+          "Follow all instructions written by your prescribing doctor exactly as stated.",
+          "Take all medicines at the prescribed times and doses. Do not skip or double doses.",
+          "If you are unsure about any medicine instruction, ask your pharmacist before taking it.",
+          "Follow-up: Review after 1 month with investigation reports",
+          "Review the safety flags highlighted below and discuss them with your doctor or pharmacist.",
+          "Do not change your dosage or stop medication without consulting your doctor.",
+          "If you experience any unexpected side effects, contact your doctor or pharmacist promptly."
+        ],
+        "consultationType": {
+          "specialty": "Cardiologist or General Physician",
+          "reason": "Blood pressure management"
+        }
+      },
+      "overallConfidence": "high",
+      "userConfirmed": false,
+      "confirmedData": null,
+      "imageStoredAt": null,
+      "scannedAt": "2026-09-10T17:40:31.504Z"
+    }
+  ],
   "chat_sessions": []
 }
