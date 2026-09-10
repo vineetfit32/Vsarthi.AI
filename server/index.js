@@ -138,6 +138,10 @@ app.get('/api/health', (req, res) => {
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/patient', patientRoutes);
+app.post('/api/consent', (req, res, next) => {
+  req.url = '/consent';
+  patientRoutes(req, res, next);
+});
 app.use('/api/history', interviewRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/summary', summaryRoutes);
