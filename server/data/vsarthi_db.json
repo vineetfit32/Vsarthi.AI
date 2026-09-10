@@ -89,7 +89,7 @@
       "token": "A-101",
       "patientId": "pat_101",
       "status": "urgent_review",
-      "priority": "critical",
+      "priority": "urgent",
       "language": "hi",
       "ayushMode": false,
       "isKiosk": true,
@@ -106,14 +106,15 @@
       "chiefComplaintDisplay": "सीने में दर्द (Chest Pain)",
       "duration": "2_3_days",
       "startedAt": "2026-09-10T08:16:00.000Z",
-      "completedAt": "2026-09-10T08:24:00.000Z"
+      "completedAt": "2026-09-10T08:24:00.000Z",
+      "updatedAt": "2026-09-10T08:04:17.148Z"
     },
     {
       "id": "sess_102",
       "token": "A-102",
       "patientId": "pat_102",
       "status": "summary_ready",
-      "priority": "urgent",
+      "priority": "critical",
       "language": "en",
       "ayushMode": false,
       "isKiosk": false,
@@ -126,7 +127,7 @@
       "duration": "1_3_months",
       "startedAt": "2026-09-10T08:31:00.000Z",
       "completedAt": "2026-09-10T08:42:00.000Z",
-      "updatedAt": "2026-09-10T06:43:11.200Z"
+      "updatedAt": "2026-09-10T08:04:25.623Z"
     },
     {
       "id": "sess_103",
@@ -182,7 +183,7 @@
       "createdAt": "2026-09-10T06:12:05.582Z",
       "token": "A-106",
       "status": "urgent_review",
-      "priority": "critical",
+      "priority": "routine",
       "language": "hi",
       "ayushMode": false,
       "isKiosk": true,
@@ -194,7 +195,7 @@
         "actionRequired": "Alert Triage & Prepare ECG"
       },
       "startedAt": "2026-09-10T06:12:05.582Z",
-      "updatedAt": "2026-09-10T06:12:06.564Z",
+      "updatedAt": "2026-09-10T08:04:19.769Z",
       "hisExported": true,
       "hisToken": "ABDM-TXN-1789020726563-D1E467ED",
       "hisTimestamp": "2026-09-10T06:12:06.564Z"
@@ -220,6 +221,28 @@
       "hisExported": true,
       "hisToken": "ABDM-TXN-1789021002078-3A136A12",
       "hisTimestamp": "2026-09-10T06:16:42.079Z"
+    },
+    {
+      "id": "rec_1789026353660_sno3p",
+      "createdAt": "2026-09-10T07:45:53.660Z",
+      "token": "A-108",
+      "status": "urgent_review",
+      "priority": "routine",
+      "language": "hi",
+      "ayushMode": false,
+      "isKiosk": true,
+      "redFlag": {
+        "id": "acs",
+        "name": "Possible Acute Coronary Syndrome",
+        "severity": "critical",
+        "message": "Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "actionRequired": "Alert Triage & Prepare ECG"
+      },
+      "startedAt": "2026-09-10T07:45:53.660Z",
+      "updatedAt": "2026-09-10T08:04:18.750Z",
+      "hisExported": true,
+      "hisToken": "ABDM-TXN-1789026354628-DB3ABF3F",
+      "hisTimestamp": "2026-09-10T07:45:54.629Z"
     }
   ],
   "clinical_histories": [
@@ -355,6 +378,26 @@
         ]
       },
       "updatedAt": "2026-09-10T06:16:41.539Z"
+    },
+    {
+      "id": "rec_1789026354101_e15u2",
+      "createdAt": "2026-09-10T07:45:54.101Z",
+      "sessionId": "rec_1789026353660_sno3p",
+      "answers": {
+        "chiefComplaint": [
+          "chest_pain"
+        ],
+        "severity": 9,
+        "radiation": [
+          "arm",
+          "jaw"
+        ],
+        "associated": [
+          "sob",
+          "sweating"
+        ]
+      },
+      "updatedAt": "2026-09-10T07:45:54.100Z"
     }
   ],
   "documents": [
@@ -599,6 +642,52 @@
       },
       "physicianNotes": {},
       "updatedAt": "2026-09-10T06:16:41.552Z"
+    },
+    {
+      "id": "rec_1789026354112_90lgs",
+      "createdAt": "2026-09-10T07:45:54.112Z",
+      "sessionId": "rec_1789026353660_sno3p",
+      "status": "pending_physician_review",
+      "sections": {
+        "patientInfo": "Anonymous Patient, /U, Token: A-108",
+        "chiefComplaint": "chest pain (unspecified duration).",
+        "hpi": "Patient presents with chest pain for unspecified duration. Radiation noted to: arm, jaw. Associated symptoms include sob, sweating. Pain/symptom severity reported as 9/10.",
+        "pastMedical": "No significant past medical illnesses reported.",
+        "pastSurgical": "No past surgical history.",
+        "medications": "No routine daily medications.",
+        "allergies": "No known drug allergies (NKDA).",
+        "familyHistory": "Non-contributory family history.",
+        "personalHistory": "Diet: Mixed. Smoking: None. Alcohol: None.",
+        "reviewOfSystems": "Negative for systemic review red flags.",
+        "priorInvestigations": "No prior diagnostic records uploaded.",
+        "importantAbnormals": "All extracted parameters within document reference ranges.",
+        "relevantTimeline": "0 document(s) on file from recent months.",
+        "redFlags": "🚨 CRITICAL: Possible Acute Coronary Syndrome — Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "missingInfo": "Awaiting physician physical examination, vitals measurement, and diagnostic confirmation.",
+        "aiConfidenceNotes": "Generated using VSarthi Clinical Intake Engine. Source attribution: patient direct interview + OCR extraction. AI-generated draft — Physician review required."
+      },
+      "safetyFlags": [],
+      "confidenceScore": 0.93,
+      "sectionStatus": {
+        "patientInfo": "pending",
+        "chiefComplaint": "pending",
+        "hpi": "pending",
+        "pastMedical": "pending",
+        "pastSurgical": "pending",
+        "medications": "pending",
+        "allergies": "pending",
+        "familyHistory": "pending",
+        "personalHistory": "pending",
+        "reviewOfSystems": "pending",
+        "priorInvestigations": "pending",
+        "importantAbnormals": "pending",
+        "relevantTimeline": "pending",
+        "redFlags": "pending",
+        "missingInfo": "pending",
+        "aiConfidenceNotes": "pending"
+      },
+      "physicianNotes": {},
+      "updatedAt": "2026-09-10T07:45:54.112Z"
     }
   ],
   "consents": [
@@ -645,6 +734,18 @@
       "dataSharing": true,
       "policyVersion": "DPDPA-2023-V2.1",
       "acceptedAt": "2026-09-10T06:16:41.530Z",
+      "ipAddress": "::1",
+      "revoked": false
+    },
+    {
+      "id": "rec_1789026354089_e276s",
+      "createdAt": "2026-09-10T07:45:54.089Z",
+      "sessionId": "rec_1789026353660_sno3p",
+      "patientId": "pat_101",
+      "dataCapture": true,
+      "dataSharing": true,
+      "policyVersion": "DPDPA-2023-V2.1",
+      "acceptedAt": "2026-09-10T07:45:54.089Z",
       "ipAddress": "::1",
       "revoked": false
     }
@@ -933,6 +1034,159 @@
       "details": {
         "priority": "urgent"
       }
+    },
+    {
+      "id": "aud_1789026353645_fld2",
+      "createdAt": "2026-09-10T07:45:53.645Z",
+      "actorRole": "doctor",
+      "actorId": "usr_doc_1",
+      "action": "USER_LOGIN",
+      "targetType": "user",
+      "targetId": "usr_doc_1",
+      "timestamp": "2026-09-10T07:45:53.645Z",
+      "details": {
+        "email": "dr.sharma@hospital.org",
+        "ip": "::1"
+      }
+    },
+    {
+      "id": "aud_1789026353661_yglq",
+      "createdAt": "2026-09-10T07:45:53.662Z",
+      "actorRole": "patient",
+      "actorId": "rec_1789026353660_sno3p",
+      "action": "SESSION_INITIALIZED",
+      "targetType": "session",
+      "targetId": "rec_1789026353660_sno3p",
+      "timestamp": "2026-09-10T07:45:53.662Z",
+      "details": {
+        "token": "A-108",
+        "language": "hi",
+        "isKiosk": true
+      }
+    },
+    {
+      "id": "aud_1789026354092_amcu",
+      "createdAt": "2026-09-10T07:45:54.092Z",
+      "actorRole": "patient",
+      "actorId": "pat_101",
+      "action": "CONSENT_RECORDED",
+      "targetType": "consent",
+      "targetId": "rec_1789026354089_e276s",
+      "timestamp": "2026-09-10T07:45:54.092Z",
+      "details": {
+        "policyVersion": "DPDPA-2023-V2.1",
+        "ip": "::1"
+      }
+    },
+    {
+      "id": "aud_1789026354103_a60b",
+      "createdAt": "2026-09-10T07:45:54.103Z",
+      "actorRole": "system",
+      "actorId": "redflag_engine",
+      "action": "RED_FLAG_TRIGGERED",
+      "targetType": "session",
+      "targetId": "rec_1789026353660_sno3p",
+      "timestamp": "2026-09-10T07:45:54.103Z",
+      "details": {
+        "id": "acs",
+        "name": "Possible Acute Coronary Syndrome",
+        "severity": "critical",
+        "message": "Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "actionRequired": "Alert Triage & Prepare ECG"
+      }
+    },
+    {
+      "id": "aud_1789026354114_pd5c",
+      "createdAt": "2026-09-10T07:45:54.114Z",
+      "actorRole": "system",
+      "actorId": "ai_summarizer",
+      "action": "SUMMARY_GENERATED",
+      "targetType": "ai_summary",
+      "targetId": "rec_1789026354112_90lgs",
+      "timestamp": "2026-09-10T07:45:54.114Z",
+      "details": {
+        "sectionsCount": 16,
+        "safetyFlagsCount": 0
+      }
+    },
+    {
+      "id": "aud_1789026354630_oaf9",
+      "createdAt": "2026-09-10T07:45:54.630Z",
+      "actorRole": "system",
+      "actorId": "his_adapter",
+      "action": "HIS_EMR_EXPORT_DISPATCHED",
+      "targetType": "session",
+      "targetId": "rec_1789026353660_sno3p",
+      "timestamp": "2026-09-10T07:45:54.630Z",
+      "details": {
+        "transactionId": "ABDM-TXN-1789026354628-DB3ABF3F",
+        "mode": "MOCK_SANDBOX"
+      }
+    },
+    {
+      "id": "aud_1789027457150_kqjc",
+      "createdAt": "2026-09-10T08:04:17.150Z",
+      "actorRole": "nurse",
+      "actorId": "triage_staff",
+      "action": "TRIAGE_PRIORITY_UPDATED",
+      "targetType": "session",
+      "targetId": "sess_101",
+      "timestamp": "2026-09-10T08:04:17.150Z",
+      "details": {
+        "priority": "urgent"
+      }
+    },
+    {
+      "id": "aud_1789027458752_4aeg",
+      "createdAt": "2026-09-10T08:04:18.752Z",
+      "actorRole": "nurse",
+      "actorId": "triage_staff",
+      "action": "TRIAGE_PRIORITY_UPDATED",
+      "targetType": "session",
+      "targetId": "rec_1789026353660_sno3p",
+      "timestamp": "2026-09-10T08:04:18.752Z",
+      "details": {
+        "priority": "routine"
+      }
+    },
+    {
+      "id": "aud_1789027459770_m1on",
+      "createdAt": "2026-09-10T08:04:19.770Z",
+      "actorRole": "nurse",
+      "actorId": "triage_staff",
+      "action": "TRIAGE_PRIORITY_UPDATED",
+      "targetType": "session",
+      "targetId": "rec_1789020725582_9hf0q",
+      "timestamp": "2026-09-10T08:04:19.770Z",
+      "details": {
+        "priority": "routine"
+      }
+    },
+    {
+      "id": "aud_1789027464347_ag1m",
+      "createdAt": "2026-09-10T08:04:24.348Z",
+      "actorRole": "nurse",
+      "actorId": "triage_staff",
+      "action": "TRIAGE_PRIORITY_UPDATED",
+      "targetType": "session",
+      "targetId": "sess_102",
+      "timestamp": "2026-09-10T08:04:24.347Z",
+      "details": {
+        "priority": "urgent"
+      }
+    },
+    {
+      "id": "aud_1789027465624_slcx",
+      "createdAt": "2026-09-10T08:04:25.624Z",
+      "actorRole": "nurse",
+      "actorId": "triage_staff",
+      "action": "TRIAGE_PRIORITY_UPDATED",
+      "targetType": "session",
+      "targetId": "sess_102",
+      "timestamp": "2026-09-10T08:04:25.624Z",
+      "details": {
+        "priority": "critical"
+      }
     }
   ],
   "notifications": [
@@ -966,6 +1220,17 @@
       "message": "🚨 Emergency Red-Flag in session rec_1789021001107_vhiwp: Possible Acute Coronary Syndrome",
       "sessionId": "rec_1789021001107_vhiwp",
       "timestamp": "2026-09-10T06:16:41.542Z",
+      "isRead": false
+    },
+    {
+      "id": "rec_1789026354103_lp5wl",
+      "createdAt": "2026-09-10T07:45:54.103Z",
+      "type": "red_flag",
+      "priority": "high",
+      "targetRole": "doctor",
+      "message": "🚨 Emergency Red-Flag in session rec_1789026353660_sno3p: Possible Acute Coronary Syndrome",
+      "sessionId": "rec_1789026353660_sno3p",
+      "timestamp": "2026-09-10T07:45:54.103Z",
       "isRead": false
     }
   ],
