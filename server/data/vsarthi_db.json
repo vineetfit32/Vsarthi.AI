@@ -36,6 +36,18 @@
       "role": "admin",
       "department": "Hospital Administration",
       "createdAt": "2026-01-01T08:00:00.000Z"
+    },
+    {
+      "id": "rec_1789064115719_7e0892fc",
+      "createdAt": "2026-09-10T18:15:15.719Z",
+      "email": "pandeyhariom629@gmail.com",
+      "passwordHash": "$2b$12$G2Q2TgM2zoJpcT83carN6.QsaiPJy0Rp7TR6GibVO3HcrWY5snQma",
+      "name": "Vineet Pandey",
+      "role": "doctor",
+      "department": "General Medicine",
+      "phone": "9555153810",
+      "isActive": true,
+      "termsAcceptedAt": "2026-09-10T18:15:15.719Z"
     }
   ],
   "patients": [
@@ -1575,6 +1587,20 @@
       "details": {
         "transactionId": "ABDM-TXN-1789063623388-8713658D",
         "mode": "MOCK_SANDBOX"
+      }
+    },
+    {
+      "id": "rec_1789064115722_0cc13284",
+      "createdAt": "2026-09-10T18:15:15.722Z",
+      "actorRole": "system",
+      "actorId": "registration",
+      "action": "USER_REGISTERED",
+      "targetType": "user",
+      "targetId": "rec_1789064115719_7e0892fc",
+      "timestamp": "2026-09-10T18:15:15.722Z",
+      "details": {
+        "email": "pandeyhariom629@gmail.com",
+        "role": "doctor"
       }
     }
   ],
