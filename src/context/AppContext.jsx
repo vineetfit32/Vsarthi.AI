@@ -60,11 +60,16 @@ const initialState = {
     hisToken: null,
   },
 
-  // Session
+  // Session & Security
   session: {
     startTime: null,
     isEnded: false,
+    sessionToken: null,
+    expiresAt: null,
   },
+
+  // System Status modal
+  isSystemStatusOpen: false,
 };
 
 // ─── Reducer ─────────────────────────────────────────────────────────────────
@@ -243,11 +248,34 @@ function reducer(state, action) {
       };
     }
 
+    case 'SET_SESSION_TOKEN':
+      return {
+        ...state,
+        session: {
+          ...state.session,
+          sessionToken: action.payload.token,
+          expiresAt: action.payload.expiresAt,
+          startTime: state.session.startTime || new Date().toISOString(),
+        },
+      };
+
+    case 'RENEW_SESSION':
+      return {
+        ...state,
+        session: {
+          ...state.session,
+          expiresAt: Date.now() + (action.payload?.durationMs || 15 * 60 * 1000),
+        },
+      };
+
+    case 'SET_SYSTEM_STATUS_MODAL':
+      return { ...state, isSystemStatusOpen: action.payload };
+
     case 'END_SESSION':
       return {
         ...state,
         currentStep: 'session_end',
-        session: { ...state.session, isEnded: true },
+        session: { ...state.session, isEnded: true, sessionToken: null },
       };
 
     case 'RESET':
@@ -293,6 +321,14 @@ export function AppProvider({ children }) {
     setSectionStatus:(key, st) => dispatch({ type: 'SET_SECTION_STATUS', payload: { sectionKey: key, status: st } }),
     setPhysicianNote:(key, n)  => dispatch({ type: 'SET_PHYSICIAN_NOTE', payload: { sectionKey: key, note: n } }),
     setPushedToHIS:  (token)   => dispatch({ type: 'SET_PUSHED_TO_HIS', payload: token }),
+    setSessionToken: (token, durationMs = 15 * 60 * 1000) =>
+      dispatch({
+        type: 'SET_SESSION_TOKEN',
+        payload: { token, expiresAt: Date.now() + durationMs },
+      }),
+    renewSession:    (durationMs) => dispatch({ type: 'RENEW_SESSION', payload: { durationMs } }),
+    openSystemStatus:()        => dispatch({ type: 'SET_SYSTEM_STATUS_MODAL', payload: true }),
+    closeSystemStatus:()       => dispatch({ type: 'SET_SYSTEM_STATUS_MODAL', payload: false }),
     endSession:      ()        => dispatch({ type: 'END_SESSION' }),
     reset:           ()        => dispatch({ type: 'RESET' }),
   };

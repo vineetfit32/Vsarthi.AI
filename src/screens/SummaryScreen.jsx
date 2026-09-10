@@ -38,6 +38,7 @@ export default function SummaryScreen() {
   const [viewMode, setViewMode] = useState('physician'); // 'patient' | 'physician'
   const [isReadingAloud, setIsReadingAloud] = useState(false);
   const [pushState, setPushState] = useState('idle'); // 'idle'|'pushing'|'done'
+  const [thinkingState, setThinkingState] = useState('Synthesizing conversational history answers…');
 
   // Generate summary on mount if not yet generated
   useEffect(() => {
@@ -49,12 +50,12 @@ export default function SummaryScreen() {
   async function handleGenerateSummary() {
     actions.setSummary({ generating: true });
     try {
-      const result = await generateSummary({
+      const result = await aiService.generateSummary({
         patient,
         answers: interview.answers,
         documents,
-        questions: interview.questions,
-        language,
+        ayushMode: state.ayushMode,
+        onThinkingState: setThinkingState,
       });
       actions.setSummary({
         generating: false,
@@ -63,6 +64,7 @@ export default function SummaryScreen() {
         patientFriendly: result.patientFriendly,
       });
     } catch (err) {
+      console.error('Summary error:', err);
       actions.setSummary({ generating: false });
     }
   }
@@ -102,16 +104,27 @@ export default function SummaryScreen() {
 
   if (summary.generating || !summary.generated) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-slate-50/60">
         <StepHeader currentStep="summary" language={language} />
         <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
-          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
-          <div className="text-center">
-            <p className="text-lg font-semibold text-slate-700">{T('summaryGenerate')}</p>
-            <p className="text-slate-400 text-sm mt-1">Compiling clinical history…</p>
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-teal-100 border-t-teal-700 rounded-full animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center text-teal-700 font-bold text-xs">
+              AI
+            </div>
           </div>
-          <div className="w-64 bg-slate-100 rounded-full h-2">
-            <div className="bg-primary-500 h-2 rounded-full animate-pulse" style={{ width: '70%' }} />
+          <div className="text-center max-w-md">
+            <h3 className="text-xl font-bold text-slate-800">{T('summaryGenerate')}</h3>
+            <p className="text-teal-700 font-medium text-sm mt-2 flex items-center justify-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-teal-500 animate-ping" />
+              {thinkingState}
+            </p>
+            <p className="text-slate-400 text-xs mt-2">
+              Structuring your inputs into standard SOAP sections for your treating physician.
+            </p>
+          </div>
+          <div className="w-72 bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+            <div className="bg-gradient-to-r from-teal-500 to-teal-700 h-2 rounded-full shimmer" style={{ width: '80%' }} />
           </div>
         </div>
       </div>

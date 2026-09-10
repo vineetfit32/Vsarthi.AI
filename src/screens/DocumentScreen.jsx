@@ -1,10 +1,13 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useApp } from '../context/AppContext.jsx';
 import { t } from '../data/languages.js';
-import { extractDocument } from '../services/ocr.js';
+import { aiService } from '../services/aiService.js';
+import { isCapabilityLive } from '../config/capabilities.js';
+import { useToast } from '../components/Toast.jsx';
 import {
   Upload, FileText, Image, Trash2, Edit3, Check, X, AlertCircle,
-  PlusCircle, ChevronRight, ArrowRight, Clock, FlaskConical, Camera
+  PlusCircle, ChevronRight, ArrowRight, Clock, FlaskConical, Camera,
+  Sparkles, CheckCircle2, ShieldAlert
 } from 'lucide-react';
 import StepHeader from '../components/StepHeader.jsx';
 import CameraCaptureModal from '../components/CameraCaptureModal.jsx';
@@ -13,31 +16,58 @@ import clsx from 'clsx';
 export default function DocumentScreen() {
   const { state, actions } = useApp();
   const { language, documents } = state;
+  const { addToast } = useToast();
   const T = (key) => t(language, key);
 
   const [isDragging, setIsDragging] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [processingFiles, setProcessingFiles] = useState([]); // [{name, progress}]
+  const [processingFiles, setProcessingFiles] = useState([]); // [{id, name, thinkingState}]
   const fileInputRef = useRef(null);
 
   // Handle file drop/select
   const handleFiles = useCallback(async (files) => {
+    const isOcrLive = isCapabilityLive('ocrService');
+
     for (const file of Array.from(files)) {
       if (!file.type.match(/image\/(jpeg|png|webp)|application\/pdf/)) continue;
 
       const fileId = `processing_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      setProcessingFiles(prev => [...prev, { id: fileId, name: file.name }]);
+      setProcessingFiles(prev => [...prev, { id: fileId, name: file.name, thinkingState: 'VSarthi is reading your document…' }]);
 
       try {
-        const extracted = await extractDocument(file);
+        if (!isOcrLive) {
+          addToast({
+            type: 'info',
+            title: 'Assisted Entry Mode',
+            message: 'Auto-scan coming soon — please verify document details manually.',
+          });
+        }
+
+        const extracted = await aiService.extractDocument({
+          file,
+          onThinkingState: (thinkingState) => {
+            setProcessingFiles(prev => prev.map(f => f.id === fileId ? { ...f, thinkingState } : f));
+          },
+        });
+
         actions.addDocument(extracted);
+        addToast({
+          type: 'success',
+          title: 'Document Digitized',
+          message: `Successfully extracted clinical entities from ${file.name}`,
+        });
       } catch (err) {
         console.error('OCR error:', err);
+        addToast({
+          type: 'error',
+          title: 'OCR Failed',
+          message: 'Unable to extract document. Please enter details manually.',
+        });
       } finally {
         setProcessingFiles(prev => prev.filter(f => f.id !== fileId));
       }
     }
-  }, [actions]);
+  }, [actions, addToast]);
 
   const onDrop = (e) => {
     e.preventDefault();
@@ -129,13 +159,13 @@ export default function DocumentScreen() {
               <FileText className="text-primary-500" size={18} />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-slate-700 text-sm">{f.name}</p>
-              <p className="text-xs text-primary-600 mt-0.5 flex items-center gap-1">
-                <span className="inline-block w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
-                {T('docProcessing')}
+              <p className="font-semibold text-slate-800 text-sm">{f.name}</p>
+              <p className="text-xs text-teal-700 font-medium mt-1 flex items-center gap-1.5">
+                <span className="inline-block w-2.5 h-2.5 rounded-full bg-teal-500 animate-ping" />
+                {f.thinkingState || T('docProcessing')}
               </p>
-              <div className="w-full bg-slate-100 rounded-full h-1.5 mt-2">
-                <div className="bg-primary-500 h-1.5 rounded-full shimmer" style={{ width: '60%' }} />
+              <div className="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                <div className="bg-teal-600 h-1.5 rounded-full shimmer" style={{ width: '75%' }} />
               </div>
             </div>
           </div>

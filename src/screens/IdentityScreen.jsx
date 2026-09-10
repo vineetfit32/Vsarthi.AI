@@ -1,24 +1,91 @@
-import React, { useState, useCallback } from 'react';
+// src/screens/IdentityScreen.jsx
+// VSarthi.AI — Multi-Method Authentication with Graceful Fallback Chain
+import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext.jsx';
 import { t } from '../data/languages.js';
 import { validateAbhaFormat, formatAbhaId, lookupAbha } from '../services/abdm.js';
-import { ChevronRight, User, CreditCard, Loader2, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { getCapability, isCapabilityLive } from '../config/capabilities.js';
+import { useToast } from '../components/Toast.jsx';
+import {
+  ChevronRight, User, CreditCard, Loader2, CheckCircle2,
+  AlertCircle, ArrowLeft, Phone, Mail, UserCheck, Shield,
+  RefreshCw, Clock, Sparkles, HelpCircle, AlertTriangle
+} from 'lucide-react';
 import StepHeader from '../components/StepHeader.jsx';
+import clsx from 'clsx';
 
 export default function IdentityScreen() {
   const { state, actions } = useApp();
   const { language, patient } = state;
+  const { addToast } = useToast();
   const T = (key) => t(language, key);
 
-  const [mode, setMode] = useState('choice'); // 'choice' | 'abha' | 'new'
-  const [abhaInput, setAbhaInput] = useState('');
+  // Authentication mode: 'choice' | 'abha' | 'mobile_otp' | 'email_otp' | 'guest'
+  const [mode, setMode] = useState('choice');
+
+  // ABHA flow state
+  const [abhaInput, setAbhaInput] = useState(patient.abhaId ? formatAbhaId(patient.abhaId) : '');
   const [abhaError, setAbhaError] = useState('');
-  const [abhaStatus, setAbhaStatus] = useState('idle'); // 'idle'|'verifying'|'verified'|'not_found'
+  const [abhaStatus, setAbhaStatus] = useState('idle'); // 'idle' | 'verifying' | 'verified' | 'failed'
 
-  // New patient form
-  const [form, setForm] = useState({ name: '', dob: '', gender: '', phone: '' });
-  const [formErrors, setFormErrors] = useState({});
+  // Mobile OTP flow state
+  const [mobileNumber, setMobileNumber] = useState(patient.phone || '');
+  const [mobileError, setMobileError] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [enteredOtp, setEnteredOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [resendTimer, setResendTimer] = useState(30);
+  const [otpVerifying, setOtpVerifying] = useState(false);
 
+  // Email state
+  const [emailInput, setEmailInput] = useState('');
+  const [emailNoticeDismissed, setEmailNoticeDismissed] = useState(false);
+
+  // Guest registration form
+  const [guestForm, setGuestForm] = useState({
+    name: patient.name || '',
+    dob: patient.dob || '',
+    gender: patient.gender || '',
+    phone: patient.phone || '',
+    emergencyContact: '',
+  });
+  const [guestErrors, setGuestErrors] = useState({});
+
+  // Countdown for OTP resend
+  useEffect(() => {
+    let timer;
+    if (otpSent && resendTimer > 0) {
+      timer = setInterval(() => setResendTimer((prev) => prev - 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [otpSent, resendTimer]);
+
+  // Helper to issue session token and advance to consent
+  const completeAuth = useCallback((patientData, authMethod) => {
+    const sessionToken = `VSAI-SESS-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+    localStorage.setItem('vsarthi_session_token', sessionToken);
+    actions.setSessionToken(sessionToken, 20 * 60 * 1000); // 20 minutes session
+
+    actions.setPatient({
+      ...patientData,
+      authMethod,
+      sessionToken,
+      verifiedAt: new Date().toISOString(),
+    });
+
+    addToast({
+      type: 'success',
+      title: 'Identity Verified',
+      message: `Welcome, ${patientData.name || 'Patient'}! Starting clinical intake.`,
+      duration: 3500,
+    });
+
+    setTimeout(() => {
+      actions.setStep('consent');
+    }, 600);
+  }, [actions, addToast]);
+
+  // ─── 1. ABHA SUBMIT & FALLBACK ───────────────────────────────────────────
   const handleAbhaInput = (e) => {
     const formatted = formatAbhaId(e.target.value);
     setAbhaInput(formatted);
@@ -28,232 +95,562 @@ export default function IdentityScreen() {
 
   const handleAbhaSubmit = useCallback(async () => {
     if (!validateAbhaFormat(abhaInput)) {
-      setAbhaError(T('abhaError'));
+      setAbhaError('Please enter a valid 14-digit ABHA ID (e.g. 12-3456-7890-1234)');
       return;
     }
-    setAbhaStatus('verifying');
-    const result = await lookupAbha(abhaInput);
-    if (result.found) {
-      setAbhaStatus('verified');
-      actions.setPatient({ ...result.patient, isNew: false, isVerified: true });
-      setTimeout(() => actions.setStep('consent'), 700);
-    } else {
-      setAbhaStatus('not_found');
-      actions.setPatient({ abhaId: abhaInput.replace(/\D/g, ''), isNew: true, isVerified: false });
-      setTimeout(() => setMode('new'), 800);
+
+    // Check capability registry for ABHA gateway status
+    if (!isCapabilityLive('abhaAuth')) {
+      addToast({
+        type: 'warning',
+        title: 'ABDM Gateway Unavailable',
+        message: 'National ABHA gateway is temporarily unreachable. Falling back to Mobile OTP verification.',
+        duration: 5000,
+      });
+      setMode('mobile_otp');
+      return;
     }
-  }, [abhaInput, language]);
 
-  const validateNewForm = () => {
+    setAbhaStatus('verifying');
+    try {
+      const result = await lookupAbha(abhaInput);
+      if (result.found) {
+        setAbhaStatus('verified');
+        completeAuth(
+          { ...result.patient, isNew: false, isVerified: true },
+          'ABHA_GATEWAY'
+        );
+      } else {
+        setAbhaStatus('failed');
+        setAbhaError('ABHA ID not found in current hospital registry. You can verify via Mobile OTP or register as a walk-in.');
+      }
+    } catch {
+      setAbhaStatus('failed');
+      setAbhaError('ABDM connection timed out. Falling back to Mobile OTP.');
+      setTimeout(() => setMode('mobile_otp'), 1200);
+    }
+  }, [abhaInput, completeAuth, addToast]);
+
+  // ─── 2. MOBILE OTP SUBMIT & FALLBACK ─────────────────────────────────────
+  const handleSendOtp = () => {
+    const cleanPhone = mobileNumber.replace(/\D/g, '');
+    if (cleanPhone.length !== 10) {
+      setMobileError('Please enter a valid 10-digit Indian mobile number');
+      return;
+    }
+    setMobileError('');
+
+    if (!isCapabilityLive('smsGateway')) {
+      addToast({
+        type: 'warning',
+        title: 'SMS Gateway Busy',
+        message: 'SMS service is experiencing latency. Please use email or continue as a guest.',
+      });
+      setMode('email_otp');
+      return;
+    }
+
+    setOtpSent(true);
+    setResendTimer(30);
+    addToast({
+      type: 'info',
+      title: 'OTP Dispatched',
+      message: `A 6-digit verification code has been simulated for +91 ${cleanPhone}. (Demo Code: 123456)`,
+      duration: 6000,
+    });
+  };
+
+  const handleVerifyOtp = () => {
+    if (enteredOtp.length < 6) {
+      setOtpError('Please enter the 6-digit OTP');
+      return;
+    }
+    setOtpVerifying(true);
+    setOtpError('');
+
+    setTimeout(() => {
+      setOtpVerifying(false);
+      // Accept demo code 123456 or any 6-digit number in test
+      if (enteredOtp === '123456' || enteredOtp.length === 6) {
+        completeAuth(
+          {
+            phone: mobileNumber.replace(/\D/g, ''),
+            name: patient.name || 'Verified Patient',
+            isNew: false,
+            isVerified: true,
+          },
+          'MOBILE_OTP'
+        );
+      } else {
+        setOtpError('Invalid OTP. Please try entering 123456 (Demo Code).');
+      }
+    }, 600);
+  };
+
+  // ─── 3. GUEST REGISTRATION SUBMIT ────────────────────────────────────────
+  const validateGuestForm = () => {
     const errors = {};
-    if (!form.name.trim()) errors.name = 'Name is required';
-    if (!form.dob) errors.dob = 'Date of birth is required';
-    if (!form.gender) errors.gender = 'Please select a gender';
-    if (!/^\d{10}$/.test(form.phone.replace(/\s/g, ''))) errors.phone = T('phoneError');
-    setFormErrors(errors);
-    return !Object.keys(errors).length;
+    if (!guestForm.name.trim()) errors.name = 'Patient name is required';
+    if (!guestForm.dob) errors.dob = 'Date of birth is required';
+    if (!guestForm.gender) errors.gender = 'Please select a gender';
+    if (!/^\d{10}$/.test(guestForm.phone.replace(/\D/g, ''))) {
+      errors.phone = 'Valid 10-digit contact number is required';
+    }
+    setGuestErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const handleNewPatientSubmit = () => {
-    if (!validateNewForm()) return;
-    actions.setPatient({ ...form, isNew: true, isVerified: false });
-    actions.setStep('consent');
+  const handleGuestSubmit = (e) => {
+    e.preventDefault();
+    if (!validateGuestForm()) return;
+
+    completeAuth(
+      {
+        ...guestForm,
+        isNew: true,
+        isVerified: false,
+        deskVerificationRequired: true,
+      },
+      'GUEST_WALKIN'
+    );
   };
 
-  // ─── Choice screen ─────────────────────────────────────────────────────────
-  if (mode === 'choice') {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <StepHeader currentStep="identity" language={language} />
-        <div className="flex-1 flex flex-col items-center justify-center p-6">
-          <div className="w-full max-w-md">
-            <h2 className="text-3xl font-bold text-slate-800 mb-2">{T('abhaTitle')}</h2>
-            <p className="text-slate-500 mb-8">Choose how to identify yourself</p>
-
-            <button
-              onClick={() => setMode('abha')}
-              className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-primary-400 hover:bg-primary-50 transition-all mb-4 shadow-sm"
-            >
-              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <CreditCard className="text-primary-600" size={22} />
-              </div>
-              <div className="text-left flex-1">
-                <p className="font-bold text-slate-800 text-lg">ABHA ID / आभा आईडी</p>
-                <p className="text-slate-500 text-sm">14-digit health account number</p>
-              </div>
-              <ChevronRight className="text-slate-400" size={20} />
-            </button>
-
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="px-3 bg-slate-50 text-slate-400 text-sm">{T('abhaOr')}</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setMode('new')}
-              className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50 transition-all shadow-sm"
-            >
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <User className="text-emerald-600" size={22} />
-              </div>
-              <div className="text-left flex-1">
-                <p className="font-bold text-slate-800 text-lg">{T('abhaNew')}</p>
-                <p className="text-slate-500 text-sm">Fill in your basic details</p>
-              </div>
-              <ChevronRight className="text-slate-400" size={20} />
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ─── ABHA entry screen ─────────────────────────────────────────────────────
-  if (mode === 'abha') {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <StepHeader currentStep="identity" language={language} />
-        <div className="flex-1 flex flex-col items-center justify-center p-6">
-          <div className="w-full max-w-md">
-            <button onClick={() => setMode('choice')} className="btn-ghost mb-6 text-slate-500">
-              <ArrowLeft size={16} /> Back
-            </button>
-            <h2 className="text-3xl font-bold text-slate-800 mb-2">Enter ABHA ID</h2>
-            <p className="text-slate-500 mb-8">Your 14-digit Ayushman Bharat Health Account number</p>
-
-            <label className="block text-slate-700 font-semibold mb-2 text-base">{T('abhaLabel')}</label>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={abhaInput}
-              onChange={handleAbhaInput}
-              placeholder={T('abhaPlaceholder')}
-              maxLength={19}
-              className={`input-field text-2xl font-mono tracking-widest mb-2 ${abhaError ? 'input-error' : ''}`}
-              disabled={abhaStatus === 'verifying' || abhaStatus === 'verified'}
-            />
-            {abhaError && <p className="text-red-600 text-sm mb-3 flex items-center gap-1"><AlertCircle size={14} />{abhaError}</p>}
-
-            {/* Status feedback */}
-            {abhaStatus === 'verifying' && (
-              <div className="flex items-center gap-2 text-primary-600 text-sm mb-4">
-                <Loader2 size={16} className="animate-spin" /> {T('abhaVerifying')}
-              </div>
-            )}
-            {abhaStatus === 'verified' && (
-              <div className="flex items-center gap-2 text-emerald-600 text-sm mb-4">
-                <CheckCircle size={16} /> {T('abhaVerified')} — {patient.name}
-              </div>
-            )}
-            {abhaStatus === 'not_found' && (
-              <div className="flex items-center gap-2 text-amber-600 text-sm mb-4">
-                <AlertCircle size={16} /> {T('abhaNotFound')}
-              </div>
-            )}
-
-            <button
-              onClick={handleAbhaSubmit}
-              disabled={abhaStatus === 'verifying' || abhaStatus === 'verified'}
-              className="btn-primary w-full mt-2"
-            >
-              {abhaStatus === 'verifying' ? <Loader2 size={18} className="animate-spin" /> : <ChevronRight size={18} />}
-              {T('continue')}
-            </button>
-
-            <p className="text-center text-slate-400 text-sm mt-4">
-              Try: <span className="font-mono">12-3456-7890-1234</span> (demo)
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ─── New patient registration ──────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-slate-50/80">
       <StepHeader currentStep="identity" language={language} />
-      <div className="flex-1 flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-md">
-          <button onClick={() => setMode('choice')} className="btn-ghost mb-6 text-slate-500">
-            <ArrowLeft size={16} /> Back
-          </button>
-          <h2 className="text-3xl font-bold text-slate-800 mb-2">{T('newPatientTitle')}</h2>
-          <p className="text-slate-500 mb-6">Please fill in your basic details</p>
 
-          <div className="space-y-4">
-            {/* Name */}
+      <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6">
+        <div className="w-full max-w-xl bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-100 transition-all">
+
+          {/* ────────────────── CHOICE OVERVIEW ────────────────── */}
+          {mode === 'choice' && (
             <div>
-              <label className="block text-slate-700 font-semibold mb-1.5">{T('nameLabel')}</label>
-              <input
-                type="text"
-                placeholder={T('namePlaceholder')}
-                value={form.name}
-                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                className={`input-field ${formErrors.name ? 'input-error' : ''}`}
-              />
-              {formErrors.name && <p className="text-red-600 text-sm mt-1">{formErrors.name}</p>}
+              <div className="text-center mb-8">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 text-teal-700 text-xs font-bold border border-teal-200 mb-3">
+                  <Shield size={13} /> Secure Clinical Identification
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                  Welcome to VSarthi.AI
+                </h2>
+                <p className="text-slate-500 text-sm mt-1.5 max-w-md mx-auto">
+                  Identify yourself before starting your clinical history. We support ABHA, Mobile OTP, or instant walk-in registration.
+                </p>
+              </div>
+
+              <div className="space-y-3.5">
+                {/* 1. Primary: ABHA ID */}
+                <button
+                  onClick={() => setMode('abha')}
+                  className="w-full flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-2 border-teal-100 bg-teal-50/40 hover:bg-teal-50 hover:border-teal-400 transition-all text-left group shadow-xs"
+                >
+                  <div className="w-12 h-12 bg-teal-600 text-white rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                    <CreditCard size={22} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-slate-900 text-base">ABHA ID (Ayushman Bharat)</h4>
+                      <span className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">
+                        Recommended
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      14-digit National Health ID. Pulls existing OPD history instantly.
+                    </p>
+                  </div>
+                  <ChevronRight className="text-teal-600 group-hover:translate-x-1 transition-transform" size={20} />
+                </button>
+
+                {/* 2. Secondary: Mobile OTP */}
+                <button
+                  onClick={() => setMode('mobile_otp')}
+                  className="w-full flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-teal-400 hover:bg-slate-50 transition-all text-left group shadow-xs"
+                >
+                  <div className="w-12 h-12 bg-sky-100 text-sky-700 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                    <Phone size={22} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-slate-900 text-base">Mobile Number & SMS OTP</h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Fast 2-step verification using your 10-digit mobile number.
+                    </p>
+                  </div>
+                  <ChevronRight className="text-slate-400 group-hover:translate-x-1 transition-transform" size={20} />
+                </button>
+
+                {/* 3. Fallback: Email Link (Demonstrating Graceful Coming-Soon Fallback) */}
+                <button
+                  onClick={() => setMode('email_otp')}
+                  className="w-full flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/40 transition-all text-left group shadow-xs"
+                >
+                  <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Mail size={22} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-slate-900 text-base">Email Magic Link / OTP</h4>
+                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                        Coming Soon
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Receive a sign-in link in your email inbox.
+                    </p>
+                  </div>
+                  <ChevronRight className="text-slate-400" size={20} />
+                </button>
+
+                {/* 4. Final Fallback: Guest / Walk-in Registration */}
+                <button
+                  onClick={() => setMode('guest')}
+                  className="w-full flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/40 transition-all text-left group shadow-xs"
+                >
+                  <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                    <UserCheck size={22} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-slate-900 text-base">New Patient / Walk-in</h4>
+                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        No ID Needed
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Enter basic demographics. Hospital reception will verify at OPD desk.
+                    </p>
+                  </div>
+                  <ChevronRight className="text-slate-400 group-hover:translate-x-1 transition-transform" size={20} />
+                </button>
+              </div>
+
+              {/* Demo Hint Banner */}
+              <div className="mt-6 p-3.5 rounded-xl bg-slate-100 text-slate-600 text-xs flex items-center gap-2">
+                <Sparkles size={14} className="text-teal-600 flex-shrink-0" />
+                <span>
+                  <strong>Demo Tip:</strong> Test ABHA ID: <code>12-3456-7890-1234</code>, or Mobile OTP with <code>123456</code>.
+                </span>
+              </div>
             </div>
+          )}
 
-            {/* DOB */}
+          {/* ────────────────── TIER 1: ABHA ID ────────────────── */}
+          {mode === 'abha' && (
             <div>
-              <label className="block text-slate-700 font-semibold mb-1.5">{T('dobLabel')}</label>
-              <input
-                type="date"
-                value={form.dob}
-                onChange={e => setForm(f => ({ ...f, dob: e.target.value }))}
-                max={new Date().toISOString().split('T')[0]}
-                className={`input-field ${formErrors.dob ? 'input-error' : ''}`}
-              />
-              {formErrors.dob && <p className="text-red-600 text-sm mt-1">{formErrors.dob}</p>}
-            </div>
+              <button
+                onClick={() => setMode('choice')}
+                className="flex items-center gap-1 text-slate-500 hover:text-slate-900 text-xs font-semibold mb-6 transition-all"
+              >
+                <ArrowLeft size={14} /> Back to Identification Options
+              </button>
 
-            {/* Gender */}
-            <div>
-              <label className="block text-slate-700 font-semibold mb-1.5">{T('genderLabel')}</label>
-              <div className="grid grid-cols-3 gap-2">
-                {['male', 'female', 'other'].map(g => (
+              <div className="mb-6">
+                <span className="text-xs font-bold text-teal-700 uppercase tracking-wider">Tier 1 • ABDM Gateway</span>
+                <h3 className="text-2xl font-bold text-slate-900 mt-1">Enter your 14-digit ABHA ID</h3>
+                <p className="text-slate-500 text-xs mt-1">
+                  Format: <code>XX-XXXX-XXXX-XXXX</code>. Found on your digital Ayushman Bharat card.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-2">ABHA Number</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={abhaInput}
+                      onChange={handleAbhaInput}
+                      placeholder="12-3456-7890-1234"
+                      maxLength={17}
+                      className={clsx(
+                        'w-full px-4 py-3.5 rounded-2xl border-2 text-lg font-mono tracking-wider focus:outline-none transition-all',
+                        abhaError
+                          ? 'border-red-400 focus:ring-4 focus:ring-red-100'
+                          : 'border-slate-200 focus:border-teal-500 focus:ring-4 focus:ring-teal-100'
+                      )}
+                    />
+                    {abhaStatus === 'verifying' && (
+                      <Loader2 className="absolute right-4 top-4 text-teal-600 animate-spin" size={20} />
+                    )}
+                    {abhaStatus === 'verified' && (
+                      <CheckCircle2 className="absolute right-4 top-4 text-emerald-600" size={20} />
+                    )}
+                  </div>
+                  {abhaError && (
+                    <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                      <AlertCircle size={14} /> {abhaError}
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  onClick={handleAbhaSubmit}
+                  disabled={abhaStatus === 'verifying'}
+                  className="btn-primary w-full"
+                >
+                  {abhaStatus === 'verifying' ? 'Verifying with ABDM Gateway…' : 'Verify & Continue'}
+                </button>
+
+                {/* Fallback Action Links */}
+                <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs gap-2">
                   <button
-                    key={g}
-                    onClick={() => setForm(f => ({ ...f, gender: g }))}
-                    className={`py-3 px-2 rounded-xl border-2 font-medium text-base transition-all
-                      ${form.gender === g
-                        ? 'border-primary-500 bg-primary-600 text-white'
-                        : 'border-slate-200 bg-white text-slate-700 hover:border-primary-300'
-                      }`}
+                    onClick={() => {
+                      setAbhaInput('12-3456-7890-1234');
+                      setAbhaError('');
+                    }}
+                    className="text-teal-700 hover:text-teal-900 font-bold underline"
                   >
-                    {g === 'male' ? T('male') : g === 'female' ? T('female') : T('other')}
+                    Auto-fill Demo ABHA (Ravi Kumar)
                   </button>
-                ))}
-              </div>
-              {formErrors.gender && <p className="text-red-600 text-sm mt-1">{formErrors.gender}</p>}
-            </div>
 
-            {/* Phone */}
+                  <button
+                    onClick={() => setMode('mobile_otp')}
+                    className="text-slate-500 hover:text-teal-700 font-semibold"
+                  >
+                    Don't have ABHA? Use Mobile OTP →
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ────────────────── TIER 2: MOBILE NUMBER + OTP ────────────────── */}
+          {mode === 'mobile_otp' && (
             <div>
-              <label className="block text-slate-700 font-semibold mb-1.5">{T('phoneLabel')}</label>
-              <div className="flex gap-2">
-                <span className="input-field w-16 text-center bg-slate-100 text-slate-500 font-semibold flex-shrink-0">+91</span>
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  placeholder={T('phonePlaceholder')}
-                  value={form.phone}
-                  onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
-                  className={`input-field flex-1 ${formErrors.phone ? 'input-error' : ''}`}
-                />
-              </div>
-              {formErrors.phone && <p className="text-red-600 text-sm mt-1">{formErrors.phone}</p>}
-            </div>
-          </div>
+              <button
+                onClick={() => setMode('choice')}
+                className="flex items-center gap-1 text-slate-500 hover:text-slate-900 text-xs font-semibold mb-6 transition-all"
+              >
+                <ArrowLeft size={14} /> Back to Identification Options
+              </button>
 
-          <button onClick={handleNewPatientSubmit} className="btn-primary w-full mt-6">
-            <ChevronRight size={18} /> {T('continue')}
-          </button>
+              <div className="mb-6">
+                <span className="text-xs font-bold text-sky-700 uppercase tracking-wider">Tier 2 • Telecom SMS Gateway</span>
+                <h3 className="text-2xl font-bold text-slate-900 mt-1">Mobile Number & OTP</h3>
+                <p className="text-slate-500 text-xs mt-1">
+                  We will send a 6-digit one-time password to verify your record.
+                </p>
+              </div>
+
+              {!otpSent ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-2">10-Digit Mobile Number</label>
+                    <div className="flex gap-2">
+                      <div className="w-16 flex items-center justify-center bg-slate-100 rounded-2xl border-2 border-slate-200 font-bold text-sm text-slate-600">
+                        +91
+                      </div>
+                      <input
+                        type="tel"
+                        value={mobileNumber}
+                        onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        placeholder="98765 43210"
+                        className="flex-1 px-4 py-3.5 rounded-2xl border-2 border-slate-200 text-lg font-mono focus:outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+                      />
+                    </div>
+                    {mobileError && (
+                      <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                        <AlertCircle size={14} /> {mobileError}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleSendOtp}
+                    className="btn-primary w-full bg-sky-600 hover:bg-sky-700 shadow-sky-200"
+                  >
+                    Send Verification Code
+                  </button>
+
+                  <div className="pt-2 text-center">
+                    <button
+                      onClick={() => setMode('guest')}
+                      className="text-xs text-slate-500 hover:text-slate-800 underline"
+                    >
+                      Phone unavailable? Continue as Walk-in Guest →
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="p-3 bg-sky-50 border border-sky-200 rounded-2xl text-xs text-sky-900 flex items-center justify-between">
+                    <span>Code sent to: <strong>+91 {mobileNumber}</strong></span>
+                    <button
+                      onClick={() => setOtpSent(false)}
+                      className="text-sky-700 font-bold underline text-[11px]"
+                    >
+                      Change Number
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Enter 6-Digit OTP</label>
+                    <input
+                      type="text"
+                      value={enteredOtp}
+                      onChange={(e) => setEnteredOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="123456"
+                      maxLength={6}
+                      className="w-full text-center tracking-[0.5em] px-4 py-3.5 rounded-2xl border-2 border-slate-200 text-2xl font-mono focus:outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+                    />
+                    {otpError && (
+                      <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                        <AlertCircle size={14} /> {otpError}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleVerifyOtp}
+                    disabled={otpVerifying}
+                    className="btn-primary w-full bg-sky-600 hover:bg-sky-700 shadow-sky-200"
+                  >
+                    {otpVerifying ? 'Verifying Code…' : 'Confirm OTP & Proceed'}
+                  </button>
+
+                  <div className="flex items-center justify-between text-xs pt-2">
+                    <button
+                      onClick={() => setEnteredOtp('123456')}
+                      className="text-sky-700 font-bold underline"
+                    >
+                      Auto-fill Demo Code (123456)
+                    </button>
+
+                    <button
+                      onClick={() => resendTimer === 0 && handleSendOtp()}
+                      disabled={resendTimer > 0}
+                      className={clsx('font-bold', resendTimer > 0 ? 'text-slate-400' : 'text-sky-700 underline')}
+                    >
+                      {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend OTP'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ────────────────── TIER 3: EMAIL (COMING SOON FALLBACK) ────────────────── */}
+          {mode === 'email_otp' && (
+            <div>
+              <button
+                onClick={() => setMode('choice')}
+                className="flex items-center gap-1 text-slate-500 hover:text-slate-900 text-xs font-semibold mb-6 transition-all"
+              >
+                <ArrowLeft size={14} /> Back to Identification Options
+              </button>
+
+              {/* Master Prompt Mandated Banner */}
+              <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 mb-6 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="text-amber-600 flex-shrink-0 mt-0.5" size={20} />
+                  <div>
+                    <h4 className="font-bold text-sm text-amber-900">Email Login Status</h4>
+                    <p className="text-xs text-amber-800 mt-1 leading-relaxed">
+                      <strong>Email login is coming soon — please use mobile OTP or continue as a guest.</strong>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <button
+                  onClick={() => setMode('mobile_otp')}
+                  className="btn-primary w-full bg-sky-600 hover:bg-sky-700 shadow-sky-200"
+                >
+                  <Phone size={18} /> Use Mobile Number + SMS OTP
+                </button>
+
+                <button
+                  onClick={() => setMode('guest')}
+                  className="btn-secondary w-full"
+                >
+                  <UserCheck size={18} /> Continue as Walk-in Guest
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ────────────────── TIER 4: GUEST / WALK-IN REGISTRATION ────────────────── */}
+          {mode === 'guest' && (
+            <div>
+              <button
+                onClick={() => setMode('choice')}
+                className="flex items-center gap-1 text-slate-500 hover:text-slate-900 text-xs font-semibold mb-6 transition-all"
+              >
+                <ArrowLeft size={14} /> Back to Identification Options
+              </button>
+
+              <div className="mb-6">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Tier 4 • Hospital Walk-in</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
+                    Flagged for Desk Verification
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mt-1">Walk-in Patient Registration</h3>
+                <p className="text-slate-500 text-xs mt-1">
+                  Fill in your basic information. A hospital coordinator will confirm your identity at the counter.
+                </p>
+              </div>
+
+              <form onSubmit={handleGuestSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Full Name *</label>
+                  <input
+                    type="text"
+                    value={guestForm.name}
+                    onChange={(e) => setGuestForm({ ...guestForm, name: e.target.value })}
+                    placeholder="e.g. Sunita Devi"
+                    className="input-field"
+                  />
+                  {guestErrors.name && <p className="text-xs text-red-600 mt-1">{guestErrors.name}</p>}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Date of Birth *</label>
+                    <input
+                      type="date"
+                      value={guestForm.dob}
+                      onChange={(e) => setGuestForm({ ...guestForm, dob: e.target.value })}
+                      className="input-field"
+                    />
+                    {guestErrors.dob && <p className="text-xs text-red-600 mt-1">{guestErrors.dob}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Gender *</label>
+                    <select
+                      value={guestForm.gender}
+                      onChange={(e) => setGuestForm({ ...guestForm, gender: e.target.value })}
+                      className="input-field"
+                    >
+                      <option value="">Select gender</option>
+                      <option value="male">Male / पुरुष</option>
+                      <option value="female">Female / महिला</option>
+                      <option value="other">Other / अन्य</option>
+                    </select>
+                    {guestErrors.gender && <p className="text-xs text-red-600 mt-1">{guestErrors.gender}</p>}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Contact Phone Number *</label>
+                  <input
+                    type="tel"
+                    value={guestForm.phone}
+                    onChange={(e) => setGuestForm({ ...guestForm, phone: e.target.value })}
+                    placeholder="10-digit mobile number"
+                    className="input-field"
+                  />
+                  {guestErrors.phone && <p className="text-xs text-red-600 mt-1">{guestErrors.phone}</p>}
+                </div>
+
+                <button type="submit" className="btn-primary w-full bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200">
+                  Register as Walk-in & Begin Intake
+                </button>
+              </form>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
