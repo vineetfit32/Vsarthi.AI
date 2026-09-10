@@ -132,10 +132,47 @@ async function runTests() {
     assert(queueRes.status === 200 && queueRes.body.queue?.length > 0, 'Doctor queue returns patient cards with priority triage');
 
     // 12. HIS / FHIR Export
-    const hisRes = await post('/api/his/export', { sessionId });
-    assert(hisRes.status === 200 && hisRes.body.success && hisRes.body.token, 'HIS / EMR export dispatched with token');
+    const hisRes = await post('/api/his/export', { sessionId, format: 'fhir' });
+    assert(hisRes.status === 200 && hisRes.body.success && hisRes.body.token, 'HIS / FHIR export dispatched with transaction token');
+    const exportId = hisRes.body.exportId;
 
-    // 13. Admin Metrics & Audit
+    // 13. HIS HL7 v2.5 Export
+    const hisHl7Res = await post('/api/his/export', { sessionId, format: 'hl7' });
+    assert(hisHl7Res.status === 200 && hisHl7Res.body.format === 'hl7', 'HIS / HL7 v2.5 export dispatched successfully');
+
+    // 14. HIS Patient Lookup & Appointment Linking
+    const patLookupRes = await post('/api/his/patient-lookup', { identifier: 'Ramesh Gupta', type: 'NAME' });
+    assert(patLookupRes.status === 200 && patLookupRes.body.found, 'HIS patient lookup retrieved existing record');
+
+    const apptLinkRes = await post('/api/his/appointment-link', {
+      sessionId,
+      appointmentId: 'APPT-2026-9021',
+      department: 'Cardiology OPD',
+      doctorId: 'usr_doc_1',
+    });
+    assert(apptLinkRes.status === 200 && apptLinkRes.body.success, 'HIS appointment linked to clinical intake session');
+
+    // 15. HIS Export Status Check
+    const hisStatusRes = await get(`/api/his/status/${exportId}`);
+    assert(hisStatusRes.status === 200 && hisStatusRes.body.export?.status === 'COMPLETED', 'HIS export delivery status verified');
+
+    // 16. Doctor Review & Summary Confirmation Lifecycle
+    const startReviewRes = await post(`/api/doctor/start-review/${sessionId}`);
+    assert(startReviewRes.status === 200 && startReviewRes.body.session?.status === 'PHYSICIAN_REVIEW', 'Doctor review initiated with status transition to PHYSICIAN_REVIEW');
+
+    const summaryId = summaryRes.body.summary.id;
+    const confirmRes = await fetch(`${BASE_URL}/api/summary/${summaryId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: 'confirmed',
+        physicianNotes: { chiefComplaint: 'Attending physician reviewed and validated.' },
+      }),
+    });
+    const confirmBody = await confirmRes.json();
+    assert(confirmRes.status === 200 && confirmBody.summary?.status === 'confirmed', 'Physician confirmed summary and locked clinical intake');
+
+    // 17. Admin Metrics & Audit
     const adminMetrics = await get('/api/admin/metrics');
     assert(adminMetrics.status === 200 && adminMetrics.body.kpis?.totalPatients > 0, 'Admin metrics endpoint returns operational KPIs');
 

@@ -4,8 +4,9 @@ import { t } from '../data/languages.js';
 import {
   Check, Edit3, X, ChevronDown, ChevronUp, CheckCircle,
   Stethoscope, ArrowLeft, FileSignature, AlertTriangle, ShieldCheck,
-  Calendar, FileText, Pill, Send, Download
+  Calendar, FileText, Pill, Send, Download, Building2
 } from 'lucide-react';
+import apiClient from '../services/apiClient.js';
 import StepHeader from '../components/StepHeader.jsx';
 import MedicalTimeline from '../components/MedicalTimeline.jsx';
 import { checkMedicationSafetyClient } from '../services/safetyChecker.js';
@@ -41,11 +42,17 @@ const SECTION_META = {
 
 export default function PhysicianScreen() {
   const { state, actions } = useApp();
-  const { language, summary, patient, documents, interview } = state;
+  const { language, summary, patient, documents, interview, session, activeView, selectedPatient } = state;
   const T = (key) => t(language, key);
+
+  const isDoctorMode = activeView === 'physician_review';
+  const sessionId = session?.id || selectedPatient?.sessionId || summary?.sessionId || 'sess_101';
+  const summaryId = summary?.id || selectedPatient?.summaryId || 'sum_101';
 
   const [activeTab, setActiveTab] = useState('summary'); // 'summary' | 'timeline' | 'documents'
   const [confirmed, setConfirmed] = useState(false);
+  const [exportingHis, setExportingHis] = useState(false);
+  const [hisStatus, setHisStatus] = useState(summary.hisToken ? 'DISPATCHED' : 'READY');
   const [expandedSections, setExpandedSections] = useState(
     Object.fromEntries(SECTION_KEYS.map(k => [k, true]))
   );
@@ -62,20 +69,119 @@ export default function PhysicianScreen() {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const acceptAll = () => {
+  const handleSectionAccept = async (key) => {
+    actions.setSectionStatus(key, 'accepted');
+    const updatedStatus = { ...summary.sectionStatus, [key]: 'accepted' };
+    try {
+      if (summaryId) {
+        await apiClient.updateSummary(summaryId, {
+          sectionStatus: updatedStatus,
+        });
+      }
+    } catch (err) {
+      console.warn('Backend sync error:', err.message);
+    }
+  };
+
+  const handleSectionAmend = async (key, note) => {
+    actions.setSectionStatus(key, 'amended');
+    actions.setPhysicianNote(key, note);
+    const updatedStatus = { ...summary.sectionStatus, [key]: 'amended' };
+    const updatedNotes = { ...summary.physicianNotes, [key]: note };
+    try {
+      if (summaryId) {
+        await apiClient.updateSummary(summaryId, {
+          sectionStatus: updatedStatus,
+          physicianNotes: updatedNotes,
+        });
+      }
+    } catch (err) {
+      console.warn('Backend sync error:', err.message);
+    }
+  };
+
+  const handleSectionReject = async (key) => {
+    actions.setSectionStatus(key, 'rejected');
+    const updatedStatus = { ...summary.sectionStatus, [key]: 'rejected' };
+    try {
+      if (summaryId) {
+        await apiClient.updateSummary(summaryId, {
+          sectionStatus: updatedStatus,
+        });
+      }
+    } catch (err) {
+      console.warn('Backend sync error:', err.message);
+    }
+  };
+
+  const acceptAll = async () => {
+    const allAccepted = {};
     SECTION_KEYS.forEach(key => {
       if (summary.sections[key]) {
         actions.setSectionStatus(key, 'accepted');
+        allAccepted[key] = 'accepted';
       }
     });
+    try {
+      if (summaryId) {
+        await apiClient.updateSummary(summaryId, {
+          sectionStatus: allAccepted,
+        });
+      }
+    } catch (err) {
+      console.warn('Backend sync error:', err.message);
+    }
   };
 
-  const handleConfirm = () => {
+  const triggerHisExport = async (format = 'fhir') => {
+    if (!sessionId) return;
+    setExportingHis(true);
+    try {
+      const res = await apiClient.exportToHis(sessionId, format);
+      if (res.success) {
+        actions.setSummary({ hisToken: res.token });
+        setHisStatus('DISPATCHED');
+      }
+    } catch (err) {
+      console.warn('HIS export error:', err.message);
+    } finally {
+      setExportingHis(false);
+    }
+  };
+
+  const handleConfirm = async () => {
     setConfirmed(true);
-    // After brief delay, end session
+
+    // Accept any remaining pending sections
+    const finalSectionStatus = { ...summary.sectionStatus };
+    SECTION_KEYS.forEach(k => {
+      if (summary.sections[k] && (!finalSectionStatus[k] || finalSectionStatus[k] === 'pending')) {
+        finalSectionStatus[k] = 'accepted';
+        actions.setSectionStatus(k, 'accepted');
+      }
+    });
+
+    try {
+      if (summaryId) {
+        await apiClient.updateSummary(summaryId, {
+          status: 'confirmed',
+          sectionStatus: finalSectionStatus,
+          physicianNotes: summary.physicianNotes,
+        });
+      }
+      await triggerHisExport('fhir');
+    } catch (err) {
+      console.warn('Confirmation sync error:', err.message);
+    }
+
+    // After brief delay, navigate appropriately
     setTimeout(() => {
-      actions.setStep('session_end');
-    }, 2500);
+      if (isDoctorMode) {
+        actions.setView('doctor_queue');
+      } else {
+        actions.setStep('session_end');
+      }
+    }, 2200);
   };
 
   // Build timeline events
@@ -125,7 +231,11 @@ export default function PhysicianScreen() {
       <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 sm:py-4 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <button onClick={() => actions.setStep('summary')} className="btn-ghost text-slate-500 p-2 flex-shrink-0">
+            <button
+              onClick={() => isDoctorMode ? actions.setView('doctor_queue') : actions.setStep('summary')}
+              className="btn-ghost text-slate-500 p-2 flex-shrink-0 hover:bg-slate-100 rounded-lg"
+              title={isDoctorMode ? 'Return to Doctor Queue' : 'Back to Summary'}
+            >
               <ArrowLeft size={18} />
             </button>
             <div className="w-9 h-9 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -133,10 +243,20 @@ export default function PhysicianScreen() {
             </div>
             <div className="min-w-0">
               <p className="font-bold text-slate-800 text-base sm:text-lg">{T('physicianTitle')}</p>
-              <p className="text-xs text-slate-400 truncate">{T('physicianSub')}</p>
+              <p className="text-xs text-slate-400 truncate">
+                {isDoctorMode ? 'OPD Physician Workstation • Attending Review' : T('physicianSub')}
+              </p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {isDoctorMode && (
+              <button
+                onClick={() => actions.setView('doctor_queue')}
+                className="btn-ghost text-xs sm:text-sm py-2 px-3 border border-slate-200"
+              >
+                Queue List
+              </button>
+            )}
             <button onClick={acceptAll} className="btn-secondary flex-1 sm:flex-initial text-xs sm:text-sm py-2 px-3 sm:px-4 min-h-[44px]">
               <Check size={14} /> {T('acceptAll')}
             </button>
@@ -224,6 +344,49 @@ export default function PhysicianScreen() {
         </div>
       </div>
 
+      {/* HIS Export & Download Bar */}
+      <div className="bg-slate-100 border-b border-slate-200 px-4 sm:px-6 py-2">
+        <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-700 flex items-center gap-1">
+              <Building2 size={13} className="text-teal-700" /> Hospital HIS Bridge:
+            </span>
+            <span className={clsx(
+              'px-2 py-0.5 rounded-full font-bold text-[11px]',
+              hisStatus === 'DISPATCHED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+            )}>
+              {hisStatus === 'DISPATCHED' ? '✓ Synced with EMR' : 'Pending Confirmation'}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => triggerHisExport('fhir')}
+              disabled={exportingHis}
+              className="btn-ghost text-teal-700 hover:bg-teal-50 text-[11px] py-1 px-2 border border-teal-200 flex items-center gap-1 rounded-lg font-medium"
+              title="Dispatch or update active FHIR R4 Bundle to Hospital EMR"
+            >
+              <Send size={11} /> {exportingHis ? 'Dispatching...' : 'Sync with HIS'}
+            </button>
+            <a
+              href={apiClient.getHisFhirUrl(sessionId)}
+              download={`fhir-record-${sessionId}.json`}
+              className="btn-ghost text-slate-700 hover:bg-slate-200 text-[11px] py-1 px-2 border border-slate-300 flex items-center gap-1 rounded-lg"
+              title="Download HL7 FHIR R4 Bundle JSON"
+            >
+              <Download size={11} /> FHIR R4
+            </a>
+            <a
+              href={apiClient.getHisHl7Url(sessionId)}
+              download={`hl7-oru-${sessionId}.hl7`}
+              className="btn-ghost text-slate-700 hover:bg-slate-200 text-[11px] py-1 px-2 border border-slate-300 flex items-center gap-1 rounded-lg"
+              title="Download HL7 v2.5 ORU/MDM Message"
+            >
+              <Download size={11} /> HL7 v2.5
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* Content based on Active Tab */}
       <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 space-y-4">
         {activeTab === 'summary' && (
@@ -273,12 +436,9 @@ export default function PhysicianScreen() {
                     language={language}
                     T={T}
                     onToggle={() => toggleSection(key)}
-                    onAccept={() => actions.setSectionStatus(key, 'accepted')}
-                    onAmend={(note) => {
-                      actions.setSectionStatus(key, 'amended');
-                      actions.setPhysicianNote(key, note);
-                    }}
-                    onReject={() => actions.setSectionStatus(key, 'rejected')}
+                    onAccept={() => handleSectionAccept(key)}
+                    onAmend={(note) => handleSectionAmend(key, note)}
+                    onReject={() => handleSectionReject(key)}
                   />
                 );
               })}
@@ -354,10 +514,18 @@ export default function PhysicianScreen() {
 
         {/* Confirmation state */}
         {confirmed && (
-          <div className="card p-6 text-center border-2 border-emerald-300 bg-emerald-50">
-            <CheckCircle className="text-emerald-500 mx-auto mb-3" size={40} />
+          <div className="card p-6 text-center border-2 border-emerald-300 bg-emerald-50 space-y-3">
+            <CheckCircle className="text-emerald-500 mx-auto" size={40} />
             <p className="text-xl font-bold text-emerald-700">{T('confirmed')}</p>
-            <p className="text-emerald-600 text-sm mt-1">Summary locked &amp; dispatched to HIS. Redirecting…</p>
+            <p className="text-emerald-600 text-sm">Summary locked &amp; dispatched to HIS. Redirecting…</p>
+            {isDoctorMode && (
+              <button
+                onClick={() => actions.setView('doctor_queue')}
+                className="btn-primary text-xs py-2 px-4 mx-auto block mt-2"
+              >
+                Return to Doctor Queue Now
+              </button>
+            )}
           </div>
         )}
       </div>

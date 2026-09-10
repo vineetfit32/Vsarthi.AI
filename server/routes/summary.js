@@ -137,7 +137,7 @@ router.post('/generate', (req, res) => {
   );
 
   db.collection('sessions').update(sessionId, {
-    status: session.priority === 'critical' ? 'urgent_review' : 'summary_ready',
+    status: session.priority === 'critical' ? 'ESCALATED' : 'SUMMARY_READY',
   });
 
   db.logAudit({
@@ -168,7 +168,10 @@ router.put('/:id', (req, res) => {
   });
 
   if (status === 'confirmed') {
-    db.collection('sessions').update(existing.sessionId, { status: 'completed' });
+    db.collection('sessions').update(existing.sessionId, {
+      status: 'PHYSICIAN_CONFIRMED',
+      physicianConfirmedAt: new Date().toISOString(),
+    });
   }
 
   db.logAudit({

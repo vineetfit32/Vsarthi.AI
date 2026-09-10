@@ -115,4 +115,29 @@ router.post('/triage-priority', (req, res) => {
   res.json({ success: true, session });
 });
 
+// POST /api/doctor/start-review/:sessionId - Attending physician opens review
+router.post('/start-review/:sessionId', (req, res) => {
+  const { sessionId } = req.params;
+  const session = db.collection('sessions').findById(sessionId);
+  if (!session) {
+    return res.status(404).json({ error: 'Session not found' });
+  }
+
+  const updated = db.collection('sessions').update(sessionId, {
+    status: 'PHYSICIAN_REVIEW',
+    reviewStartedAt: new Date().toISOString(),
+    attendingDoctorId: req.user?.id || 'physician_current',
+  });
+
+  db.logAudit({
+    actorRole: 'doctor',
+    actorId: req.user?.id || 'attending_physician',
+    action: 'PHYSICIAN_REVIEW_STARTED',
+    targetType: 'session',
+    targetId: sessionId,
+  });
+
+  res.json({ success: true, session: updated });
+});
+
 export default router;

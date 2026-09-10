@@ -18,7 +18,7 @@ router.post('/session', (req, res) => {
 
   const session = db.collection('sessions').insert({
     token,
-    status: 'in_progress',
+    status: 'REGISTERED',
     priority: 'routine',
     language,
     ayushMode,
@@ -125,6 +125,10 @@ router.post('/consent', (req, res) => {
     ipAddress: req.ip,
     revoked: false,
   });
+
+  if (sessionId) {
+    db.collection('sessions').update(sessionId, { status: 'CONSENTED' });
+  }
 
   db.logAudit({
     actorRole: 'patient',

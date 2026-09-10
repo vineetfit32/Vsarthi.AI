@@ -106,7 +106,7 @@ router.post('/answer', (req, res) => {
     db.collection('sessions').update(sessionId, {
       redFlag,
       priority: redFlag.severity === 'critical' ? 'critical' : 'urgent',
-      status: 'urgent_review',
+      status: 'ESCALATED',
     });
 
     // Notify doctor & triage
@@ -128,6 +128,11 @@ router.post('/answer', (req, res) => {
       targetId: sessionId,
       details: redFlag,
     });
+  } else {
+    const currentSession = db.collection('sessions').findById(sessionId);
+    if (currentSession && ['REGISTERED', 'CONSENTED', 'in_progress'].includes(currentSession.status)) {
+      db.collection('sessions').update(sessionId, { status: 'INTAKE_IN_PROGRESS' });
+    }
   }
 
   res.json({

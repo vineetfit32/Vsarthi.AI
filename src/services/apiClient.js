@@ -274,12 +274,54 @@ class ApiClient {
     return this.request('/admin/users');
   }
 
-  // ─── HIS / FHIR Export ───────────────────────────────────────────────────
-  async exportToHis(sessionId) {
+  async startDoctorReview(sessionId) {
+    return this.request(`/doctor/start-review/${sessionId}`, {
+      method: 'POST',
+    });
+  }
+
+  // ─── HIS / FHIR / HL7 Export ─────────────────────────────────────────────
+  async exportToHis(sessionId, format = 'fhir') {
     return this.request('/his/export', {
       method: 'POST',
-      body: JSON.stringify({ sessionId }),
+      body: JSON.stringify({ sessionId, format }),
     });
+  }
+
+  async lookupHisPatient(identifier, type = 'MRN') {
+    return this.request('/his/patient-lookup', {
+      method: 'POST',
+      body: JSON.stringify({ identifier, type }),
+    });
+  }
+
+  async linkHisAppointment(payload) {
+    return this.request('/his/appointment-link', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getHisExportStatus(exportId) {
+    return this.request(`/his/status/${exportId}`);
+  }
+
+  async retryHisExport(exportId) {
+    return this.request(`/his/retry/${exportId}`, {
+      method: 'POST',
+    });
+  }
+
+  getHisFhirUrl(sessionId) {
+    return `${API_BASE}/his/fhir/${sessionId}`;
+  }
+
+  getHisHl7Url(sessionId) {
+    return `${API_BASE}/his/hl7/${sessionId}`;
+  }
+
+  getHisProprietaryUrl(sessionId) {
+    return `${API_BASE}/his/proprietary/${sessionId}`;
   }
 }
 

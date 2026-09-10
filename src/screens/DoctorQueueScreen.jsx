@@ -301,16 +301,39 @@ export default function DoctorQueueScreen({ onSelectPatient, onLogout, onBackHom
                   {/* Summary Status & Open Review CTA */}
                   <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
                     <div className="text-left sm:text-right text-xs">
-                      <span className={clsx(
-                        'inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full',
-                        item.hasSummary ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
-                      )}>
-                        <FileText size={12} />
-                        {item.hasSummary ? 'Summary Ready' : 'Intake In Progress'}
-                      </span>
+                      {item.status === 'PHYSICIAN_CONFIRMED' || item.status === 'completed' ? (
+                        <span className="inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                          <CheckCircle2 size={12} /> Confirmed &amp; Dispatched
+                        </span>
+                      ) : item.status === 'PHYSICIAN_REVIEW' ? (
+                        <span className="inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                          <Clock size={12} /> Under Doctor Review
+                        </span>
+                      ) : item.status === 'ESCALATED' || item.status === 'urgent_review' ? (
+                        <span className="inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-800">
+                          <AlertTriangle size={12} /> Escalated Triage
+                        </span>
+                      ) : item.hasSummary ? (
+                        <span className="inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">
+                          <FileText size={12} /> Summary Ready
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                          <Clock size={12} /> Intake In Progress
+                        </span>
+                      )}
                     </div>
 
-                    <button className="btn-primary text-xs py-2 px-4 min-h-[38px] flex items-center gap-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (item.sessionId) {
+                          apiClient.startDoctorReview(item.sessionId).catch(() => {});
+                        }
+                        onSelectPatient(item);
+                      }}
+                      className="btn-primary text-xs py-2 px-4 min-h-[38px] flex items-center gap-1"
+                    >
                       Review <ChevronRight size={14} />
                     </button>
                   </div>
