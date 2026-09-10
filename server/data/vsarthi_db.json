@@ -376,6 +376,37 @@
       "reviewStartedAt": "2026-09-10T18:31:28.270Z",
       "attendingDoctorId": "physician_current",
       "physicianConfirmedAt": "2026-09-10T18:31:28.279Z"
+    },
+    {
+      "id": "rec_1789065233287_40fe9fbf",
+      "createdAt": "2026-09-10T18:33:53.287Z",
+      "token": "A-115",
+      "status": "PHYSICIAN_CONFIRMED",
+      "priority": "critical",
+      "language": "hi",
+      "ayushMode": false,
+      "isKiosk": true,
+      "redFlag": {
+        "id": "acs",
+        "name": "Possible Acute Coronary Syndrome",
+        "severity": "critical",
+        "message": "Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "actionRequired": "Alert Triage & Prepare ECG"
+      },
+      "startedAt": "2026-09-10T18:33:53.287Z",
+      "updatedAt": "2026-09-10T18:33:53.818Z",
+      "hisExported": true,
+      "hisExportStatus": "COMPLETED",
+      "hisToken": "HIS-TXN-1789065233781-D1407202",
+      "hisFormat": "hl7",
+      "hisTimestamp": "2026-09-10T18:33:53.784Z",
+      "appointmentId": "APPT-2026-9021",
+      "department": "Cardiology OPD",
+      "assignedDoctorId": "usr_doc_1",
+      "appointmentLinkedAt": "2026-09-10T18:33:53.796Z",
+      "reviewStartedAt": "2026-09-10T18:33:53.808Z",
+      "attendingDoctorId": "physician_current",
+      "physicianConfirmedAt": "2026-09-10T18:33:53.818Z"
     }
   ],
   "clinical_histories": [
@@ -591,6 +622,26 @@
         ]
       },
       "updatedAt": "2026-09-10T18:31:28.171Z"
+    },
+    {
+      "id": "rec_1789065233728_d25a9f6b",
+      "createdAt": "2026-09-10T18:33:53.728Z",
+      "sessionId": "rec_1789065233287_40fe9fbf",
+      "answers": {
+        "chiefComplaint": [
+          "chest_pain"
+        ],
+        "severity": 9,
+        "radiation": [
+          "arm",
+          "jaw"
+        ],
+        "associated": [
+          "sob",
+          "sweating"
+        ]
+      },
+      "updatedAt": "2026-09-10T18:33:53.728Z"
     }
   ],
   "documents": [
@@ -1023,6 +1074,54 @@
         "chiefComplaint": "Attending physician reviewed and validated."
       },
       "updatedAt": "2026-09-10T18:31:28.277Z"
+    },
+    {
+      "id": "rec_1789065233747_cf06a430",
+      "createdAt": "2026-09-10T18:33:53.747Z",
+      "sessionId": "rec_1789065233287_40fe9fbf",
+      "status": "confirmed",
+      "sections": {
+        "patientInfo": "Anonymous Patient, /U, Token: A-115",
+        "chiefComplaint": "chest pain (unspecified duration).",
+        "hpi": "Patient presents with chest pain for unspecified duration. Radiation noted to: arm, jaw. Associated symptoms include sob, sweating. Pain/symptom severity reported as 9/10.",
+        "pastMedical": "No significant past medical illnesses reported.",
+        "pastSurgical": "No past surgical history.",
+        "medications": "No routine daily medications.",
+        "allergies": "No known drug allergies (NKDA).",
+        "familyHistory": "Non-contributory family history.",
+        "personalHistory": "Diet: Mixed. Smoking: None. Alcohol: None.",
+        "reviewOfSystems": "Negative for systemic review red flags.",
+        "priorInvestigations": "No prior diagnostic records uploaded.",
+        "importantAbnormals": "All extracted parameters within document reference ranges.",
+        "relevantTimeline": "0 document(s) on file from recent months.",
+        "redFlags": "🚨 CRITICAL: Possible Acute Coronary Syndrome — Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "missingInfo": "Awaiting physician physical examination, vitals measurement, and diagnostic confirmation.",
+        "aiConfidenceNotes": "Generated using VSarthi Clinical Intake Engine. Source attribution: patient direct interview + OCR extraction. AI-generated draft — Physician review required."
+      },
+      "safetyFlags": [],
+      "confidenceScore": 0.93,
+      "sectionStatus": {
+        "patientInfo": "pending",
+        "chiefComplaint": "pending",
+        "hpi": "pending",
+        "pastMedical": "pending",
+        "pastSurgical": "pending",
+        "medications": "pending",
+        "allergies": "pending",
+        "familyHistory": "pending",
+        "personalHistory": "pending",
+        "reviewOfSystems": "pending",
+        "priorInvestigations": "pending",
+        "importantAbnormals": "pending",
+        "relevantTimeline": "pending",
+        "redFlags": "pending",
+        "missingInfo": "pending",
+        "aiConfidenceNotes": "pending"
+      },
+      "physicianNotes": {
+        "chiefComplaint": "Attending physician reviewed and validated."
+      },
+      "updatedAt": "2026-09-10T18:33:53.816Z"
     }
   ],
   "consents": [
@@ -1117,6 +1216,18 @@
       "dataSharing": true,
       "policyVersion": "DPDPA-2023-V2.1",
       "acceptedAt": "2026-09-10T18:31:28.158Z",
+      "ipAddress": "::1",
+      "revoked": false
+    },
+    {
+      "id": "rec_1789065233716_79736e82",
+      "createdAt": "2026-09-10T18:33:53.716Z",
+      "sessionId": "rec_1789065233287_40fe9fbf",
+      "patientId": "pat_101",
+      "dataCapture": true,
+      "dataSharing": true,
+      "policyVersion": "DPDPA-2023-V2.1",
+      "acceptedAt": "2026-09-10T18:33:53.716Z",
       "ipAddress": "::1",
       "revoked": false
     }
@@ -2118,6 +2229,153 @@
       "details": {
         "status": "confirmed"
       }
+    },
+    {
+      "id": "rec_1789065232762_fc1b2f82",
+      "createdAt": "2026-09-10T18:33:52.762Z",
+      "actorRole": "doctor",
+      "actorId": "usr_doc_1",
+      "action": "USER_LOGIN",
+      "targetType": "user",
+      "targetId": "usr_doc_1",
+      "timestamp": "2026-09-10T18:33:52.762Z",
+      "details": {
+        "email": "dr.sharma@hospital.org",
+        "ipHash": "eff8e7ca"
+      }
+    },
+    {
+      "id": "rec_1789065233288_af9651bf",
+      "createdAt": "2026-09-10T18:33:53.288Z",
+      "actorRole": "patient",
+      "actorId": "rec_1789065233287_40fe9fbf",
+      "action": "SESSION_INITIALIZED",
+      "targetType": "session",
+      "targetId": "rec_1789065233287_40fe9fbf",
+      "timestamp": "2026-09-10T18:33:53.288Z",
+      "details": {
+        "token": "A-115",
+        "language": "hi",
+        "isKiosk": true
+      }
+    },
+    {
+      "id": "rec_1789065233719_0112788a",
+      "createdAt": "2026-09-10T18:33:53.719Z",
+      "actorRole": "patient",
+      "actorId": "pat_101",
+      "action": "CONSENT_RECORDED",
+      "targetType": "consent",
+      "targetId": "rec_1789065233716_79736e82",
+      "timestamp": "2026-09-10T18:33:53.719Z",
+      "details": {
+        "policyVersion": "DPDPA-2023-V2.1",
+        "ip": "::1"
+      }
+    },
+    {
+      "id": "rec_1789065233734_eb8a1763",
+      "createdAt": "2026-09-10T18:33:53.734Z",
+      "actorRole": "system",
+      "actorId": "redflag_engine",
+      "action": "RED_FLAG_TRIGGERED",
+      "targetType": "session",
+      "targetId": "rec_1789065233287_40fe9fbf",
+      "timestamp": "2026-09-10T18:33:53.734Z",
+      "details": {
+        "id": "acs",
+        "name": "Possible Acute Coronary Syndrome",
+        "severity": "critical",
+        "message": "Chest pain with associated symptoms (dyspnea, sweating, arm/jaw radiation) — acute cardiac assessment needed immediately.",
+        "actionRequired": "Alert Triage & Prepare ECG"
+      }
+    },
+    {
+      "id": "rec_1789065233750_21b63875",
+      "createdAt": "2026-09-10T18:33:53.750Z",
+      "actorRole": "system",
+      "actorId": "ai_summarizer",
+      "action": "SUMMARY_GENERATED",
+      "targetType": "ai_summary",
+      "targetId": "rec_1789065233747_cf06a430",
+      "timestamp": "2026-09-10T18:33:53.750Z",
+      "details": {
+        "sectionsCount": 16,
+        "safetyFlagsCount": 0
+      }
+    },
+    {
+      "id": "rec_1789065233774_6b60b27e",
+      "createdAt": "2026-09-10T18:33:53.774Z",
+      "actorRole": "his_adapter",
+      "actorId": "his_integration_service",
+      "action": "HIS_EXPORT_SUCCESS",
+      "targetType": "his_export",
+      "targetId": "rec_1789065233769_0c56eacd",
+      "timestamp": "2026-09-10T18:33:53.774Z",
+      "details": {
+        "transactionId": "HIS-TXN-1789065233769-61B3323A",
+        "format": "fhir",
+        "latencyMs": 0,
+        "responseStatus": 200,
+        "payloadHash": "e8708277dcf5c281"
+      }
+    },
+    {
+      "id": "rec_1789065233785_e93a6014",
+      "createdAt": "2026-09-10T18:33:53.785Z",
+      "actorRole": "his_adapter",
+      "actorId": "his_integration_service",
+      "action": "HIS_EXPORT_SUCCESS",
+      "targetType": "his_export",
+      "targetId": "rec_1789065233781_f569c1e7",
+      "timestamp": "2026-09-10T18:33:53.785Z",
+      "details": {
+        "transactionId": "HIS-TXN-1789065233781-D1407202",
+        "format": "hl7",
+        "latencyMs": 0,
+        "responseStatus": 200,
+        "payloadHash": "d6c8642e6b87ccc5"
+      }
+    },
+    {
+      "id": "rec_1789065233798_c86a1ace",
+      "createdAt": "2026-09-10T18:33:53.798Z",
+      "actorRole": "his_adapter",
+      "actorId": "his_service",
+      "action": "HIS_APPOINTMENT_LINKED",
+      "targetType": "session",
+      "targetId": "rec_1789065233287_40fe9fbf",
+      "timestamp": "2026-09-10T18:33:53.798Z",
+      "details": {
+        "appointmentId": "APPT-2026-9021",
+        "department": "Cardiology OPD",
+        "doctorId": "usr_doc_1"
+      }
+    },
+    {
+      "id": "rec_1789065233809_720fceb7",
+      "createdAt": "2026-09-10T18:33:53.809Z",
+      "actorRole": "doctor",
+      "actorId": "attending_physician",
+      "action": "PHYSICIAN_REVIEW_STARTED",
+      "targetType": "session",
+      "targetId": "rec_1789065233287_40fe9fbf",
+      "timestamp": "2026-09-10T18:33:53.809Z",
+      "details": {}
+    },
+    {
+      "id": "rec_1789065233819_434c91cd",
+      "createdAt": "2026-09-10T18:33:53.819Z",
+      "actorRole": "doctor",
+      "actorId": "physician",
+      "action": "SUMMARY_CONFIRMED",
+      "targetType": "ai_summary",
+      "targetId": "rec_1789065233747_cf06a430",
+      "timestamp": "2026-09-10T18:33:53.819Z",
+      "details": {
+        "status": "confirmed"
+      }
     }
   ],
   "notifications": [
@@ -2195,6 +2453,17 @@
       "message": "🚨 Emergency Red-Flag in session rec_1789065087735_66df194c: Possible Acute Coronary Syndrome",
       "sessionId": "rec_1789065087735_66df194c",
       "timestamp": "2026-09-10T18:31:28.175Z",
+      "isRead": false
+    },
+    {
+      "id": "rec_1789065233733_ed4dce18",
+      "createdAt": "2026-09-10T18:33:53.733Z",
+      "type": "red_flag",
+      "priority": "high",
+      "targetRole": "doctor",
+      "message": "🚨 Emergency Red-Flag in session rec_1789065233287_40fe9fbf: Possible Acute Coronary Syndrome",
+      "sessionId": "rec_1789065233287_40fe9fbf",
+      "timestamp": "2026-09-10T18:33:53.733Z",
       "isRead": false
     }
   ],
@@ -2620,6 +2889,50 @@
         "message": "Clinical summary successfully ingested by hospital mock HIS receiver."
       },
       "updatedAt": "2026-09-10T18:31:28.241Z"
+    },
+    {
+      "id": "rec_1789065233769_0c56eacd",
+      "createdAt": "2026-09-10T18:33:53.769Z",
+      "sessionId": "rec_1789065233287_40fe9fbf",
+      "patientId": null,
+      "transactionId": "HIS-TXN-1789065233769-61B3323A",
+      "format": "fhir",
+      "targetUrl": "http://localhost:5000/api/his/mock-receiver",
+      "payloadHash": "e8708277dcf5c281724ab1e740d1022a147e8f7ad9c85ce8a07b0910a17ed988",
+      "status": "COMPLETED",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "responseStatus": 200,
+      "latencyMs": 0,
+      "completedAt": "2026-09-10T18:33:53.771Z",
+      "responseSummary": {
+        "mode": "MOCK_SANDBOX_RECEIVER",
+        "acknowledgement": "AA",
+        "message": "Clinical summary successfully ingested by hospital mock HIS receiver."
+      },
+      "updatedAt": "2026-09-10T18:33:53.771Z"
+    },
+    {
+      "id": "rec_1789065233781_f569c1e7",
+      "createdAt": "2026-09-10T18:33:53.781Z",
+      "sessionId": "rec_1789065233287_40fe9fbf",
+      "patientId": null,
+      "transactionId": "HIS-TXN-1789065233781-D1407202",
+      "format": "hl7",
+      "targetUrl": "http://localhost:5000/api/his/mock-receiver",
+      "payloadHash": "d6c8642e6b87ccc5766dbe95c311948f69d759382a6678f03b145036a2ebbfbc",
+      "status": "COMPLETED",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "responseStatus": 200,
+      "latencyMs": 0,
+      "completedAt": "2026-09-10T18:33:53.783Z",
+      "responseSummary": {
+        "mode": "MOCK_SANDBOX_RECEIVER",
+        "acknowledgement": "AA",
+        "message": "Clinical summary successfully ingested by hospital mock HIS receiver."
+      },
+      "updatedAt": "2026-09-10T18:33:53.783Z"
     }
   ]
 }
