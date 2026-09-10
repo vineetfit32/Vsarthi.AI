@@ -1,8 +1,10 @@
 // src/services/apiClient.js
 // Dual-mode API Client: connects to Express backend (http://localhost:5000)
 // or gracefully falls back to local client state if server is offline
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+    ? '/api'
+    : 'http://localhost:5000/api');
 
 class ApiClient {
   constructor() {
