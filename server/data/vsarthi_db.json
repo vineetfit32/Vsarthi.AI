@@ -31,11 +31,12 @@
     {
       "id": "usr_admin_1",
       "email": "admin@hospital.org",
-      "passwordHash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+      "passwordHash": "$2b$12$FLsaKEnk/TYrSuMqxFMF/.376XTUxJZuiOXPjyNkmDZKuhJBI3M8S",
       "name": "OPD Administrator",
       "role": "admin",
       "department": "Hospital Administration",
-      "createdAt": "2026-01-01T08:00:00.000Z"
+      "createdAt": "2026-01-01T08:00:00.000Z",
+      "updatedAt": "2026-09-11T06:18:26.027Z"
     },
     {
       "id": "rec_1789064115719_7e0892fc",
@@ -48,6 +49,18 @@
       "phone": "9555153810",
       "isActive": true,
       "termsAcceptedAt": "2026-09-10T18:15:15.719Z"
+    },
+    {
+      "id": "rec_1789065476275_0f0ee791",
+      "createdAt": "2026-09-10T18:37:56.275Z",
+      "email": "officialvineet7776@gmail.com",
+      "passwordHash": "$2b$12$4xXVKTfLOBRc3e1nSybS8.LRJ/.m0Ts8kJKR6E/eEcuDUNer.uoxy",
+      "name": "Vineet Pandey",
+      "role": "doctor",
+      "department": "General Medicine",
+      "phone": "9452319853",
+      "isActive": true,
+      "termsAcceptedAt": "2026-09-10T18:37:56.275Z"
     }
   ],
   "patients": [
@@ -101,7 +114,7 @@
       "id": "sess_101",
       "token": "A-101",
       "patientId": "pat_101",
-      "status": "urgent_review",
+      "status": "PHYSICIAN_CONFIRMED",
       "priority": "urgent",
       "language": "hi",
       "ayushMode": false,
@@ -120,7 +133,13 @@
       "duration": "2_3_days",
       "startedAt": "2026-09-10T08:16:00.000Z",
       "completedAt": "2026-09-10T08:24:00.000Z",
-      "updatedAt": "2026-09-10T08:04:17.148Z"
+      "updatedAt": "2026-09-11T06:13:34.127Z",
+      "physicianConfirmedAt": "2026-09-11T06:13:34.085Z",
+      "hisExported": true,
+      "hisExportStatus": "COMPLETED",
+      "hisToken": "HIS-TXN-1789107214115-29E82BD4",
+      "hisFormat": "fhir",
+      "hisTimestamp": "2026-09-11T06:13:34.127Z"
     },
     {
       "id": "sess_102",
@@ -720,7 +739,7 @@
     {
       "id": "sum_101",
       "sessionId": "sess_101",
-      "status": "pending_physician_review",
+      "status": "confirmed",
       "confidenceScore": 0.94,
       "sections": {
         "patientInfo": "Ramesh Gupta, 58/M, ABHA: 12-3456-7890-1234, Token: A-101",
@@ -756,10 +775,12 @@
         "timelineSummary": "accepted",
         "redFlags": "accepted",
         "missingInfo": "accepted",
-        "aiConfidenceNotes": "accepted"
+        "aiConfidenceNotes": "accepted",
+        "pastHistory": "accepted",
+        "drugAllergy": "accepted"
       },
       "physicianNotes": {},
-      "updatedAt": "2026-09-10T08:25:00.000Z"
+      "updatedAt": "2026-09-11T06:13:34.082Z"
     },
     {
       "id": "sum_102",
@@ -2376,6 +2397,181 @@
       "details": {
         "status": "confirmed"
       }
+    },
+    {
+      "id": "rec_1789065408197_0d74afef",
+      "createdAt": "2026-09-10T18:36:48.198Z",
+      "actorRole": "doctor",
+      "actorId": "physician",
+      "action": "SUMMARY_CONFIRMED",
+      "targetType": "ai_summary",
+      "targetId": "sum_101",
+      "timestamp": "2026-09-10T18:36:48.196Z",
+      "details": {
+        "status": "confirmed",
+        "sectionStatus": {
+          "chiefComplaint": "accepted",
+          "hpi": "accepted",
+          "pastHistory": "accepted",
+          "drugAllergy": "accepted",
+          "familyHistory": "accepted",
+          "personalHistory": "accepted",
+          "reviewOfSystems": "accepted",
+          "priorInvestigations": "accepted"
+        }
+      }
+    },
+    {
+      "id": "rec_1789065408270_2db32b09",
+      "createdAt": "2026-09-10T18:36:48.271Z",
+      "actorRole": "his_adapter",
+      "actorId": "his_integration_service",
+      "action": "HIS_EXPORT_SUCCESS",
+      "targetType": "his_export",
+      "targetId": "rec_1789065408254_5a8612a1",
+      "timestamp": "2026-09-10T18:36:48.270Z",
+      "details": {
+        "transactionId": "HIS-TXN-1789065408253-B044F19B",
+        "format": "fhir",
+        "latencyMs": 0,
+        "responseStatus": 200,
+        "payloadHash": "e5a390a521687f69"
+      }
+    },
+    {
+      "id": "rec_1789065476278_90e353ce",
+      "createdAt": "2026-09-10T18:37:56.278Z",
+      "actorRole": "system",
+      "actorId": "registration",
+      "action": "USER_REGISTERED",
+      "targetType": "user",
+      "targetId": "rec_1789065476275_0f0ee791",
+      "timestamp": "2026-09-10T18:37:56.278Z",
+      "details": {
+        "email": "officialvineet7776@gmail.com",
+        "role": "doctor"
+      }
+    },
+    {
+      "id": "rec_1789107213075_6a58c03c",
+      "createdAt": "2026-09-11T06:13:33.075Z",
+      "actorRole": "doctor",
+      "actorId": "physician",
+      "action": "SUMMARY_AMENDED",
+      "targetType": "ai_summary",
+      "targetId": "sum_101",
+      "timestamp": "2026-09-11T06:13:33.074Z",
+      "details": {
+        "sectionStatus": {
+          "chiefComplaint": "accepted",
+          "hpi": "accepted",
+          "pastHistory": "accepted",
+          "drugAllergy": "accepted",
+          "familyHistory": "accepted",
+          "personalHistory": "accepted",
+          "reviewOfSystems": "accepted",
+          "priorInvestigations": "accepted"
+        }
+      }
+    },
+    {
+      "id": "rec_1789107214088_4205d727",
+      "createdAt": "2026-09-11T06:13:34.088Z",
+      "actorRole": "doctor",
+      "actorId": "physician",
+      "action": "SUMMARY_CONFIRMED",
+      "targetType": "ai_summary",
+      "targetId": "sum_101",
+      "timestamp": "2026-09-11T06:13:34.088Z",
+      "details": {
+        "status": "confirmed",
+        "sectionStatus": {
+          "chiefComplaint": "accepted",
+          "hpi": "accepted",
+          "pastHistory": "accepted",
+          "drugAllergy": "accepted",
+          "familyHistory": "accepted",
+          "personalHistory": "accepted",
+          "reviewOfSystems": "accepted",
+          "priorInvestigations": "accepted"
+        }
+      }
+    },
+    {
+      "id": "rec_1789107214133_bce41c6f",
+      "createdAt": "2026-09-11T06:13:34.134Z",
+      "actorRole": "his_adapter",
+      "actorId": "his_integration_service",
+      "action": "HIS_EXPORT_SUCCESS",
+      "targetType": "his_export",
+      "targetId": "rec_1789107214115_12ec2afd",
+      "timestamp": "2026-09-11T06:13:34.133Z",
+      "details": {
+        "transactionId": "HIS-TXN-1789107214115-29E82BD4",
+        "format": "fhir",
+        "latencyMs": 0,
+        "responseStatus": 200,
+        "payloadHash": "3aa11f15a1b2f4e9"
+      }
+    },
+    {
+      "id": "rec_1789107226097_c9500ff9",
+      "createdAt": "2026-09-11T06:13:46.097Z",
+      "actorRole": "patient",
+      "actorId": "VSAI-SESS-MTWK5481-YNRA9",
+      "action": "CHAT_MESSAGE_SENT",
+      "targetType": "chat",
+      "targetId": "VSAI-SESS-MTWK5481-YNRA9",
+      "timestamp": "2026-09-11T06:13:46.097Z",
+      "details": {
+        "success": true,
+        "isEmergencyFlag": false,
+        "messageLength": 5
+      }
+    },
+    {
+      "id": "rec_1789107425959_53ffa4a7",
+      "createdAt": "2026-09-11T06:17:05.960Z",
+      "actorRole": "patient",
+      "actorId": "anonymous",
+      "action": "PRESCRIPTION_SCANNED",
+      "targetType": "prescription",
+      "targetId": "rec_1789107425956_4bb542f4",
+      "timestamp": "2026-09-11T06:17:05.959Z",
+      "details": {
+        "filename": "pres.jpg",
+        "medicinesFound": 3,
+        "safetyFlagsCount": 0,
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "rec_1789107506038_82f7f2b3",
+      "createdAt": "2026-09-11T06:18:26.038Z",
+      "actorRole": "admin",
+      "actorId": "usr_admin_1",
+      "action": "USER_LOGIN",
+      "targetType": "user",
+      "targetId": "usr_admin_1",
+      "timestamp": "2026-09-11T06:18:26.038Z",
+      "details": {
+        "email": "admin@hospital.org",
+        "ipHash": "eff8e7ca"
+      }
+    },
+    {
+      "id": "rec_1789107828001_21e18f4c",
+      "createdAt": "2026-09-11T06:23:48.001Z",
+      "actorRole": "admin",
+      "actorId": "usr_admin_1",
+      "action": "USER_LOGIN",
+      "targetType": "user",
+      "targetId": "usr_admin_1",
+      "timestamp": "2026-09-11T06:23:48.001Z",
+      "details": {
+        "email": "admin@hospital.org",
+        "ipHash": "eff8e7ca"
+      }
     }
   ],
   "notifications": [
@@ -2798,6 +2994,166 @@
       "confirmedData": null,
       "imageStoredAt": null,
       "scannedAt": "2026-09-10T17:40:31.504Z"
+    },
+    {
+      "id": "rec_1789107425956_4bb542f4",
+      "createdAt": "2026-09-11T06:17:05.956Z",
+      "sessionId": null,
+      "filename": "pres.jpg",
+      "mimeType": "image/jpeg",
+      "status": "extracted",
+      "extractedData": {
+        "patientName": {
+          "value": "Mr. Rajesh Kumar",
+          "confidence": "high"
+        },
+        "patientAge": {
+          "value": "48 Y / Male",
+          "confidence": "high"
+        },
+        "date": {
+          "value": "2026-09-11",
+          "confidence": "high"
+        },
+        "doctorName": {
+          "value": "Dr. K. S. Sharma, MD (Med)",
+          "confidence": "high"
+        },
+        "doctorRegistration": {
+          "value": "MCI-48291",
+          "confidence": "high"
+        },
+        "hospitalClinic": {
+          "value": "City Care Specialty Hospital, OPD-4",
+          "confidence": "high"
+        },
+        "diagnosis": {
+          "value": "Essential Hypertension, Type 2 Diabetes Mellitus (Controlled)",
+          "confidence": "high"
+        },
+        "clinicalNotes": {
+          "value": "BP: 138/86 mmHg, Pulse: 76 bpm, Fasting Blood Sugar: 124 mg/dL. Advised low salt & diabetic diet.",
+          "confidence": "high"
+        },
+        "medicines": [
+          {
+            "name": {
+              "value": "Tab. Telmisartan",
+              "confidence": "high"
+            },
+            "strength": {
+              "value": "40 mg",
+              "confidence": "high"
+            },
+            "frequency": {
+              "value": "Once daily (Morning)",
+              "confidence": "high"
+            },
+            "duration": {
+              "value": "30 Days",
+              "confidence": "high"
+            },
+            "route": {
+              "value": "Oral",
+              "confidence": "high"
+            },
+            "instructions": {
+              "value": "After breakfast",
+              "confidence": "high"
+            }
+          },
+          {
+            "name": {
+              "value": "Tab. Metformin HCl (ER)",
+              "confidence": "high"
+            },
+            "strength": {
+              "value": "500 mg",
+              "confidence": "high"
+            },
+            "frequency": {
+              "value": "Twice daily (BD)",
+              "confidence": "high"
+            },
+            "duration": {
+              "value": "30 Days",
+              "confidence": "high"
+            },
+            "route": {
+              "value": "Oral",
+              "confidence": "high"
+            },
+            "instructions": {
+              "value": "With meals",
+              "confidence": "high"
+            }
+          },
+          {
+            "name": {
+              "value": "Tab. Atorvastatin",
+              "confidence": "high"
+            },
+            "strength": {
+              "value": "10 mg",
+              "confidence": "high"
+            },
+            "frequency": {
+              "value": "Once daily (Bedtime)",
+              "confidence": "high"
+            },
+            "duration": {
+              "value": "30 Days",
+              "confidence": "high"
+            },
+            "route": {
+              "value": "Oral",
+              "confidence": "high"
+            },
+            "instructions": {
+              "value": "Night after dinner",
+              "confidence": "high"
+            }
+          }
+        ],
+        "investigations": {
+          "value": "HbA1c, Serum Creatinine, Lipid Profile in 4 weeks",
+          "confidence": "high"
+        },
+        "followUp": {
+          "value": "Review after 1 month with investigation reports",
+          "confidence": "high"
+        },
+        "overallConfidence": "high",
+        "readabilityIssues": [],
+        "warnings": [
+          "Monitor blood pressure once weekly.",
+          "Do not stop anti-hypertensive medication without consulting physician."
+        ]
+      },
+      "safetyFlags": [],
+      "guidance": {
+        "urgencyLevel": "routine",
+        "urgencyLabel": "Routine",
+        "urgencyColor": "green",
+        "steps": [
+          "Follow all instructions written by your prescribing doctor exactly as stated.",
+          "Take all medicines at the prescribed times and doses. Do not skip or double doses.",
+          "If you are unsure about any medicine instruction, ask your pharmacist before taking it.",
+          "Follow-up: Review after 1 month with investigation reports",
+          "Review the safety flags highlighted below and discuss them with your doctor or pharmacist.",
+          "Do not change your dosage or stop medication without consulting your doctor.",
+          "If you experience any unexpected side effects, contact your doctor or pharmacist promptly."
+        ],
+        "consultationType": {
+          "specialty": "Cardiologist or General Physician",
+          "reason": "Blood pressure management"
+        }
+      },
+      "overallConfidence": "high",
+      "userConfirmed": false,
+      "confirmedData": null,
+      "imageStoredAt": null,
+      "scannedAt": "2026-09-11T06:17:05.956Z"
     }
   ],
   "chat_sessions": [],
@@ -2933,6 +3289,50 @@
         "message": "Clinical summary successfully ingested by hospital mock HIS receiver."
       },
       "updatedAt": "2026-09-10T18:33:53.783Z"
+    },
+    {
+      "id": "rec_1789065408254_5a8612a1",
+      "createdAt": "2026-09-10T18:36:48.254Z",
+      "sessionId": "sess_101",
+      "patientId": "pat_101",
+      "transactionId": "HIS-TXN-1789065408253-B044F19B",
+      "format": "fhir",
+      "targetUrl": "http://localhost:5000/api/his/mock-receiver",
+      "payloadHash": "e5a390a521687f69e0557961bed13c24b48c8d4c47c3a989835491c24009c22a",
+      "status": "COMPLETED",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "responseStatus": 200,
+      "latencyMs": 0,
+      "completedAt": "2026-09-10T18:36:48.259Z",
+      "responseSummary": {
+        "mode": "MOCK_SANDBOX_RECEIVER",
+        "acknowledgement": "AA",
+        "message": "Clinical summary successfully ingested by hospital mock HIS receiver."
+      },
+      "updatedAt": "2026-09-10T18:36:48.259Z"
+    },
+    {
+      "id": "rec_1789107214115_12ec2afd",
+      "createdAt": "2026-09-11T06:13:34.115Z",
+      "sessionId": "sess_101",
+      "patientId": "pat_101",
+      "transactionId": "HIS-TXN-1789107214115-29E82BD4",
+      "format": "fhir",
+      "targetUrl": "http://localhost:5000/api/his/mock-receiver",
+      "payloadHash": "3aa11f15a1b2f4e92e861acde1cfed31522c8f7ca465df4f5dd3afb1c0f21280",
+      "status": "COMPLETED",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "responseStatus": 200,
+      "latencyMs": 0,
+      "completedAt": "2026-09-11T06:13:34.123Z",
+      "responseSummary": {
+        "mode": "MOCK_SANDBOX_RECEIVER",
+        "acknowledgement": "AA",
+        "message": "Clinical summary successfully ingested by hospital mock HIS receiver."
+      },
+      "updatedAt": "2026-09-11T06:13:34.123Z"
     }
   ]
 }

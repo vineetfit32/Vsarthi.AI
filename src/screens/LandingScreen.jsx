@@ -235,9 +235,11 @@ export default function LandingScreen({ onNavigate }) {
       <header className="border-b border-slate-200 bg-white/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center shadow-md shadow-teal-200">
-              <Stethoscope className="text-white" size={20} />
-            </div>
+            <img
+              src="/vsarthi-logo.jpg"
+              alt="Vsarthi.ai Logo"
+              className="w-10 h-10 rounded-xl object-contain shadow-md shadow-teal-200"
+            />
             <div>
               <span className="font-black text-2xl text-teal-700 tracking-tight">VSarthi.AI</span>
               <span className="ml-2 text-[10px] font-bold bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full border border-teal-200">

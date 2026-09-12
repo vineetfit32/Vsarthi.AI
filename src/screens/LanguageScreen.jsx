@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext.jsx';
 import { LANGUAGES } from '../data/languages.js';
-import { Stethoscope, Settings } from 'lucide-react';
+import { Settings } from 'lucide-react';
 
 export default function LanguageScreen() {
   const { state, actions } = useApp();
@@ -16,9 +16,11 @@ export default function LanguageScreen() {
       {/* Header */}
       <div className="text-center mb-10">
         <div className="flex items-center justify-center gap-3 mb-3">
-          <div className="w-14 h-14 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-200">
-            <Stethoscope className="text-white" size={28} />
-          </div>
+          <img
+            src="/vsarthi-logo.jpg"
+            alt="VSarthi.AI Logo"
+            className="w-14 h-14 rounded-2xl object-contain shadow-lg shadow-primary-200"
+          />
           <div>
             <h1 className="text-4xl font-black text-primary-700 tracking-tight">VSarthi.AI</h1>
             <p className="text-sm font-medium text-primary-400 tracking-wide uppercase">Clinical Intake Platform</p>

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext.jsx';
 import { t } from '../data/languages.js';
 import {
-  Stethoscope, Settings, X, Sun, ZoomIn, Volume2,
+  Settings, X, Sun, ZoomIn, Volume2,
   ChevronRight, Check, Activity, ShieldCheck, Clock, User
 } from 'lucide-react';
 import clsx from 'clsx';
@@ -85,9 +85,11 @@ export default function StepHeader({ currentStep, language }) {
       <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* Brand Logo */}
         <div className="flex items-center gap-2.5 flex-shrink-0 cursor-pointer" onClick={() => actions.setView('landing')}>
-          <div className="w-9 h-9 bg-gradient-to-tr from-teal-700 to-teal-500 rounded-xl flex items-center justify-center shadow-md shadow-teal-500/20 text-white">
-            <Stethoscope size={18} />
-          </div>
+          <img
+            src="/vsarthi-logo.jpg"
+            alt="VSarthi.AI Logo"
+            className="w-9 h-9 rounded-xl object-contain shadow-md shadow-teal-500/20"
+          />
           <div>
             <span className="font-black text-slate-900 text-lg tracking-tight block leading-tight">
               VSarthi<span className="text-teal-600">.AI</span>
